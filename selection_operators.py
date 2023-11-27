@@ -4,6 +4,7 @@
 import numpy as np
 from numpy import random
 
+# TODO: Improve code, and remove repeated lines
 def Parent_Selection(Fitness, Population):
   #Faço todo o procedimento para o pai 1#
   candidate_1 = random.randint(0,len(Population)-1)
