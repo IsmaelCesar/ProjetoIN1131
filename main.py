@@ -1,10 +1,33 @@
+import os
+import re
+from datetime import datetime
 import numpy as np
 from variation_operators import Mutation, Cross_over
 from selection_operators import Parent_Selection, Elitism
 from population import Get_Predefined_Data, Initialization, Fitness_Calculation
 import statistics
+import logging
+
+def check_create_dir(dir_name: str):
+    if not os.path.exists(dir_name):
+        os.mkdir(dir_name)
 
 def main():
+    # cria um diretório com o datetime da execucao atual
+    datetime_digits = re.findall(r"\d+", str(datetime.now()))
+    datetime_string = "".join(datetime_digits)
+    execution_dir = "results/{}".format(datetime_string)
+    check_create_dir(execution_dir)
+
+    # configurando logging >>>
+    logger = logging.getLogger("tsp_ga")
+    logger.setLevel(logging.INFO)
+    file_handler = logging.FileHandler("{}/{}".format(execution_dir, "execution.log"), mode="w+") # salva logs em arquivo
+    stream_handler = logging.StreamHandler() # printa logs no prompt
+    logger.addHandler(file_handler)
+    logger.addHandler(stream_handler)
+    #<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
     Cidades_Codigo, Cidades, X_Coord, Y_Coord = Get_Predefined_Data()
 
     # computing distances
@@ -49,7 +72,7 @@ def main():
 
         Fitness = Sorted_New_Population_Elitism.copy()
         Sorted_Population = np.array(sorted(Fitness, reverse=True, key=lambda x:x[-1]))
-        print('Generation {}, Best_Overall_Solution {}'.format(major_it+1,Best_Overall[-1]))
+        logger.info('Generation {}, Best_Overall_Solution {}'.format(major_it+1,Best_Overall[-1]))
 
         Plot_Average = [-Average_of_Generation[i] for i in range(len(Average_of_Generation))]
         Plot_Best = [-Best_of_Generation[i][-1] for i in range(len(Best_of_Generation))]
