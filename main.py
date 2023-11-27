@@ -8,6 +8,8 @@ from population import Get_Predefined_Data, Initialization, Fitness_Calculation
 import statistics
 import logging
 
+logger = logging.getLogger("tsp_ga")
+
 def check_create_dir(dir_name: str):
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
@@ -20,7 +22,6 @@ def main():
     check_create_dir(execution_dir)
 
     # configurando logging >>>
-    logger = logging.getLogger("tsp_ga")
     logger.setLevel(logging.INFO)
     file_handler = logging.FileHandler("{}/{}".format(execution_dir, "execution.log"), mode="w+") # salva logs em arquivo
     stream_handler = logging.StreamHandler() # printa logs no prompt
