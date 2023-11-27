@@ -56,13 +56,14 @@ plt.show()
 def Initialization(Cidades, pop = 100):
   population = np.empty((0,len(Cidades)))
   for t in range(pop):
-    s = Cidades.copy()
-    solution = []
-    for i in range(len(Cidades)):
-      k = random.choice(s)
-      solution.append(k)
-      s.remove(k)
-    solution = np.array(solution)
+    solution = Cidades.copy()
+    np.random.shuffle(solution)
+    #solution = []
+    #for i in range(len(Cidades)):
+    #  k = random.choice(s)
+    #  solution.append(k)
+    #  s.remove(k)
+    # solution = np.array(solution)
     population = np.vstack((population,solution))
 
   return population
