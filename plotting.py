@@ -35,9 +35,7 @@ def Plot_Cycle(Plot_X, Plot_Y, Cycle, Cycle_Codigos, Filename: str = None):
     fig = plt.figure(figsize=(6,6))
     ax = fig.add_subplot(1, 1, 1, aspect=1)
     for i in range(len(Cycle)):
-        ax.text(Plot_X[i], Plot_Y[i], Cycle_Codigos[i], 
-                fontsize=6, fontweight='bold', 
-                color='black', ha='center', va='center')
+        ax.text(Plot_X[i], Plot_Y[i], Cycle_Codigos[i], fontsize=6, fontweight='bold', color='black', ha='center', va='center')
     plt.scatter(Plot_X, Plot_Y, s=20, c=None)
     plt.plot(Plot_X, Plot_Y)
     plt.title("Travelling Salesman Problem Optimized", fontsize=14, fontweight='bold')
