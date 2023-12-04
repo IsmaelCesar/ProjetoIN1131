@@ -7,6 +7,8 @@ from selection_operators import Parent_Selection, Elitism
 from population import Get_Predefined_Data, Initialization, Fitness_Calculation
 import statistics
 import logging
+from plotting import Plot_Cities, Plot_Objectve_Function, Plot_Cycle
+from utils import Compute_Cycle
 
 logger = logging.getLogger("tsp_ga")
 
@@ -39,6 +41,8 @@ def main():
             aux.append(((X_Coord[i] - X_Coord[k])**2 +(Y_Coord[i] - Y_Coord[k])**2)**1/2)
         Dist.append(aux)
 
+    cities_fname = os.path.join(execution_dir, "cities.png")
+    Plot_Cities(X_Coord, Y_Coord, Cidades_Codigo, len(Cidades), Filename=cities_fname)
 
     """**RESOLUÇÃO DO PROBLEMA EM UMA ÚNICA RODADA**"""
 
@@ -75,9 +79,22 @@ def main():
         Sorted_Population = np.array(sorted(Fitness, reverse=True, key=lambda x:x[-1]))
         logger.info('Generation {}, Best_Overall_Solution {}'.format(major_it+1,Best_Overall[-1]))
 
-        Plot_Average = [-Average_of_Generation[i] for i in range(len(Average_of_Generation))]
-        Plot_Best = [-Best_of_Generation[i][-1] for i in range(len(Best_of_Generation))]
+        #Plot_Average = [-Average_of_Generation[i] for i in range(len(Average_of_Generation))]
+        #Plot_Best = [-Best_of_Generation[i][-1] for i in range(len(Best_of_Generation))]
     
+    Plot_Average = [-Average_of_Generation[i] for i in range(len(Average_of_Generation))]
+    Plot_Best = [-Best_of_Generation[i][-1] for i in range(len(Best_of_Generation))]
+
+    objective_fn_fname = os.path.join(execution_dir, "objective_fn.png")
+    Plot_Objectve_Function(Plot_Average, Plot_Best, Filename=objective_fn_fname)
+
+    Computed_Cycle, Cycle_X, Cycle_Y, Cycle_Codigos = Compute_Cycle(Best_Overall, 
+                                                                    X_Coord,
+                                                                    Y_Coord,
+                                                                    Cidades_Codigo)
+
+    cycle_plot_fname = os.path.join(execution_dir, "cycle.png")
+    Plot_Cycle(Cycle_X, Cycle_Y, Computed_Cycle, Cycle_Codigos, Filename=cycle_plot_fname)
 
 if __name__ == "__main__":
     main()
