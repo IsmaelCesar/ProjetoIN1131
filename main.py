@@ -41,7 +41,8 @@ def main():
             aux.append(((X_Coord[i] - X_Coord[k])**2 +(Y_Coord[i] - Y_Coord[k])**2)**1/2)
         Dist.append(aux)
 
-    Plot_Cities(X_Coord, Y_Coord, Cidades_Codigo, len(Cidades))    
+    cities_fname = os.path.join(execution_dir, "cities.png")
+    Plot_Cities(X_Coord, Y_Coord, Cidades_Codigo, len(Cidades), Filename=cities_fname)
 
     """**RESOLUÇÃO DO PROBLEMA EM UMA ÚNICA RODADA**"""
 
@@ -84,14 +85,16 @@ def main():
     Plot_Average = [-Average_of_Generation[i] for i in range(len(Average_of_Generation))]
     Plot_Best = [-Best_of_Generation[i][-1] for i in range(len(Best_of_Generation))]
 
-    Plot_Objectve_Function(Plot_Average, Plot_Best)
+    objective_fn_fname = os.path.join(execution_dir, "objective_fn.png")
+    Plot_Objectve_Function(Plot_Average, Plot_Best, Filename=objective_fn_fname)
 
     Computed_Cycle, Cycle_X, Cycle_Y, Cycle_Codigos = Compute_Cycle(Best_Overall, 
                                                                     X_Coord,
                                                                     Y_Coord,
                                                                     Cidades_Codigo)
 
-    Plot_Cycle(Cycle_X, Cycle_Y, Computed_Cycle, Cycle_Codigos)
+    cycle_plot_fname = os.path.join(execution_dir, "cycle.png")
+    Plot_Cycle(Cycle_X, Cycle_Y, Computed_Cycle, Cycle_Codigos, Filename=cycle_plot_fname)
 
 if __name__ == "__main__":
     main()
