@@ -7,7 +7,7 @@ from selection_operators import Parent_Selection, Elitism
 from population import Get_Predefined_Data, Initialization, Fitness_Calculation
 import statistics
 import logging
-import matplotlib.pyplot as plt
+from plotting import Plot_Cities, Plot_Objectve_Function, Plot_Cycle
 
 logger = logging.getLogger("tsp_ga")
 
@@ -40,20 +40,7 @@ def main():
             aux.append(((X_Coord[i] - X_Coord[k])**2 +(Y_Coord[i] - Y_Coord[k])**2)**1/2)
         Dist.append(aux)
 
-    
-    X = X_Coord
-    Y = Y_Coord
-
-    fig = plt.figure(figsize=(6,6))
-    ax = fig.add_subplot(1, 1, 1, aspect=1)
-    for i in range(len(Cidades)):
-        ax.text(X_Coord[i], Y_Coord[i], Cidades_Codigo[i], fontsize=6, fontweight='bold', color='black', ha='center', va='center')
-
-    plt.scatter(X, Y, s=20, c=None)
-    plt.title("Travelling Salesman Problem", fontsize=14, fontweight='bold')
-    plt.xlabel('X_Coord')
-    plt.ylabel('Y_Coord')
-    plt.show()
+    Plot_Cities(X_Coord, Y_Coord, Cidades_Codigo, len(Cidades))    
 
     """**RESOLUÇÃO DO PROBLEMA EM UMA ÚNICA RODADA**"""
 
@@ -96,36 +83,21 @@ def main():
     Plot_Average = [-Average_of_Generation[i] for i in range(len(Average_of_Generation))]
     Plot_Best = [-Best_of_Generation[i][-1] for i in range(len(Best_of_Generation))]
 
-    plt.plot(Plot_Average, color='gray')
-    plt.plot(Plot_Best, color='blue')
-    plt.xlabel('Generations')
-    plt.ylabel('Objective_Function')
-    plt.show()
+    Plot_Objectve_Function(Plot_Average, Plot_Best)
 
-    Plot_Cycle = [Best_Overall[i] for i in range(len(Best_Overall) -1)]
-    Plot_X, Plot_Y, Plot_Codigos = [], [], []
-    for i in Plot_Cycle:
+    Computed_Cycle = [Best_Overall[i] for i in range(len(Best_Overall) -1)]
+    Plot_X, Plot_Y, Cycle_Codigos = [], [], []
+    for i in Computed_Cycle:
         Plot_X.append(X_Coord[int(i)])
         Plot_Y.append(Y_Coord[int(i)])
-        Plot_Codigos.append(Cidades_Codigo[int(i)])
+        Cycle_Codigos.append(Cidades_Codigo[int(i)])
 
     Plot_X.append(Plot_X[0])
     Plot_Y.append(Plot_Y[0])
-    Plot_Codigos.append(Plot_Codigos[0])
-    Plot_Cycle.append(Plot_Cycle[0])
+    Cycle_Codigos.append(Cycle_Codigos[0])
+    Computed_Cycle.append(Computed_Cycle[0])
 
-    fig = plt.figure(figsize=(8,20))
-    ax = fig.add_subplot(1, 1, 1, aspect=1)
-    for i in range(len(Plot_Cycle)):
-        ax.text(Plot_X[i], Plot_Y[i], Plot_Codigos[i], fontsize=6, fontweight='bold', color='black', ha='center', va='center')
-
-    plt.scatter(Plot_X, Plot_Y, s=20, c=None)
-    plt.plot(Plot_X, Plot_Y)
-    plt.title("Travelling Salesman Problem Optimized", fontsize=14, fontweight='bold')
-    plt.xlabel('X_Coord')
-    plt.ylabel('Y_Coord')
-    plt.show()
-
+    Plot_Cycle(Plot_X, Plot_Y, Computed_Cycle, Cycle_Codigos)
 
 if __name__ == "__main__":
     main()
