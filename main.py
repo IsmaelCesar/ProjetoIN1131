@@ -8,6 +8,7 @@ from population import Get_Predefined_Data, Initialization, Fitness_Calculation
 import statistics
 import logging
 from plotting import Plot_Cities, Plot_Objectve_Function, Plot_Cycle
+from utils import Compute_Cycle
 
 logger = logging.getLogger("tsp_ga")
 
@@ -85,19 +86,12 @@ def main():
 
     Plot_Objectve_Function(Plot_Average, Plot_Best)
 
-    Computed_Cycle = [Best_Overall[i] for i in range(len(Best_Overall) -1)]
-    Plot_X, Plot_Y, Cycle_Codigos = [], [], []
-    for i in Computed_Cycle:
-        Plot_X.append(X_Coord[int(i)])
-        Plot_Y.append(Y_Coord[int(i)])
-        Cycle_Codigos.append(Cidades_Codigo[int(i)])
+    Computed_Cycle, Cycle_X, Cycle_Y, Cycle_Codigos = Compute_Cycle(Best_Overall, 
+                                                                    X_Coord,
+                                                                    Y_Coord,
+                                                                    Cidades_Codigo)
 
-    Plot_X.append(Plot_X[0])
-    Plot_Y.append(Plot_Y[0])
-    Cycle_Codigos.append(Cycle_Codigos[0])
-    Computed_Cycle.append(Computed_Cycle[0])
-
-    Plot_Cycle(Plot_X, Plot_Y, Computed_Cycle, Cycle_Codigos)
+    Plot_Cycle(Cycle_X, Cycle_Y, Computed_Cycle, Cycle_Codigos)
 
 if __name__ == "__main__":
     main()
