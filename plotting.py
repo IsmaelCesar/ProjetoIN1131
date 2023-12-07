@@ -1,18 +1,20 @@
 
+import numpy as np
 import matplotlib.pyplot as plt
+from typing import List
 
-def Plot_Cities(X_Coord, Y_Coord, Cidades_Codigo, Num_Cidades, Filename: str = None):
+def plot_cities(coordenadas_cidades: np.ndarray, cidades_codigo: List[str] , num_cidades: str, filename: str = None):
     fig = plt.figure(figsize=(6,6))
     ax = fig.add_subplot(1, 1, 1, aspect=1)
-    for i in range(Num_Cidades):
-        ax.text(X_Coord[i], Y_Coord[i], Cidades_Codigo[i], fontsize=6, fontweight='bold', color='black', ha='center', va='center')
+    for i in range(num_cidades):
+        ax.text(coordenadas_cidades[i, 0], coordenadas_cidades[i, 1], cidades_codigo[i], fontsize=6, fontweight='bold', color='black', ha='center', va='center')
 
-    plt.scatter(X_Coord, Y_Coord, s=20, c=None)
+    plt.scatter(coordenadas_cidades[:, 0], coordenadas_cidades[:, 1], s=20, c=None)
     plt.title("Travelling Salesman Problem", fontsize=14, fontweight='bold')
     plt.xlabel('X_Coord')
     plt.ylabel('Y_Coord')
-    if Filename is not None:
-        plt.savefig(Filename)
+    if filename is not None:
+        plt.savefig(filename)
     plt.show()
     plt.close()
     plt.clf()
