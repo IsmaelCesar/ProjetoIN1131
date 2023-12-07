@@ -16,7 +16,7 @@ def _combine_second_parent_segment(child: np.ndarray, parent: np.ndarray, end: i
     if child_idx > len(child) - 1 : 
         child_idx = 0
 
-    while parent_idx > end or parent_idx < end:
+    for _ in range(len(child)):
 
         if parent[parent_idx] not in child:
             child[child_idx] = parent[parent_idx]
