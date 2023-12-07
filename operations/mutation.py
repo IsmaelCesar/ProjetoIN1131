@@ -40,6 +40,23 @@ def _apply_inverse(individual: np.ndarray) -> np.ndarray:
 
     return individual
 
+def _apply_insert(individual: np.ndarray) -> np.ndarray:
+    """
+    Effectivelly applies the insert mutations
+    """
+    start = np.random.randint(0, len(individual)-2)
+    end = np.random.randint(start+1, len(individual)-1)
+
+    temp_end = individual[end]
+
+    for segment_index in range(end, start+1, -1):
+        temp_item = individual[segment_index-1]
+        individual[segment_index] = temp_item
+
+    individual[start + 1] = temp_end
+
+    return individual
+
 class SingleTravelerMut:
 
     def __init__(self, probability: float = 0.5):
@@ -48,17 +65,23 @@ class SingleTravelerMut:
     def swap(self, individual: np.ndarray) -> np.ndarray: 
         rand_prob = np.random.rand()
         if rand_prob < self.probability: 
-            _apply_swap(individual)
+            return _apply_swap(individual)
         return copy.deepcopy(individual)
     
     def scramble(self, individual: np.ndarray) -> np.ndarray:
         rand_prob = np.random.rand()
         if rand_prob < self.probability: 
-            _apply_scramble(individual)
+            return _apply_scramble(individual)
         return copy.deepcopy(individual)
 
     def inverse(self, individual: np.ndarray) -> np.ndarray:
         rand_prob = np.random.rand()
         if rand_prob < self.probability: 
-            _apply_inverse(individual)
+            return _apply_inverse(individual)
+        return copy.deepcopy(individual)
+
+    def insert(self, individual: np.ndarray) -> np.ndarray:
+        rand_prob = np.random.rand()
+        if rand_prob < self.probability: 
+            return _apply_insert(individual)
         return copy.deepcopy(individual)
