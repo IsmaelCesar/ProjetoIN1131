@@ -1,7 +1,7 @@
 
 import numpy as np
 import copy 
-from typing import Tuple
+from typing import Tuple, List, Dict, Union
 
 def _combine_second_parent_segment(child: np.ndarray, parent: np.ndarray, end: int):
     """
@@ -118,8 +118,130 @@ def _cycle_child(parent1: np.ndarray, parent2: np.ndarray) -> np.ndarray:
 
 
 def _apply_cycle_x(parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Effectively applies the cycle crossover
+    """
     child_1 = _cycle_child(parent1, parent2)
     child_2 = _cycle_child(parent2, parent1)
+    return child_1, child_2
+
+def _build_edge(edge_idx: int, chromosome_size: int) -> List[int, int]:
+
+    edge = [0, 0]
+    edge[0] = edge_idx - 1
+    edge[1] = edge_idx + 1 if edge_idx + 1 > chromosome_size - 1 else 0
+    return edge
+
+def _construct_edge_table(parent1: np.ndarray, parent2: np.ndarray) -> Dict[int, List[int]]:
+    table = {}
+
+    for p1_el in parent1:
+        element_p1_idx = np.where(parent1 == p1_el)[0][0]
+        edge_p1 = _build_edge(element_p1_idx, len(parent1))
+        elements_edge_p1 = parent1[edge_p1].tolist()
+
+        element_p2_idx = np.where(parent2 == p1_el)[0][0]
+        edge_p2 = _build_edge(element_p2_idx, len(parent1))
+        elements_edge_p2 = parent1[edge_p2].tolist()
+
+        table[p1_el] = sorted(elements_edge_p1 + elements_edge_p2)
+
+    return table
+
+def _remove_item_references(current_item: int, edge_table:  Dict[int, List[int]]) -> Dict[int, List[int]]:
+    """
+    removes all current item references from edge table and returns an updated edge table
+    """
+    edge_table.pop(current_item)
+
+    for k in edge_table.keys(): 
+        if current_item in edge_table[k]:
+            edge_table[k].remove(current_item)
+
+    return edge_table
+
+def _find_common_edges(current_item_edges: List[int]) -> Union[int, None]:
+    """
+    If the current_item_edges has duplicate items it means it has a common edge.
+    Returns integer if it finds common edge items and None otherwise
+    """
+    # count items
+    item_counts = {}
+    for ci_edge in current_item_edges:
+        item_counts[ci_edge] = 0
+        for cj_edge in current_item_edges:
+            # count repetitions only on different indices
+            if ci_edge == cj_edge:
+                item_counts[ci_edge] += 1
+
+    # checks if there is a common edge in item counts
+    current_value = None
+    for k, v in item_counts.items():
+        if v >= 2: 
+            current_value = k
+            break
+    return current_value
+
+def _find_shortest_list(current_item_edges: List[int], edge_table: Dict[int, List[int]]) -> Union[int, None]:
+    edge_size = {}
+    # for each element in edge list get the edge count
+    for ci_edge_el in current_item_edges:
+        edge_size[ci_edge_el] = len(edge_table[ci_edge_el])
+
+    current_item = None
+
+    #verifica empates
+    sorted_size = dict(sorted(edge_size.items(), key = lambda x : x[1]))
+    values = list(sorted_size.values())
+    if np.all(values == values[0]):
+        current_item = np.random.choice(list(sorted_size.keys()))
+    else:
+        sorted_size_keys = list(sorted_size.keys())
+        current_item = sorted_size_keys[0]
+
+    return current_item
+
+def _choose_next_item(current_item_edges: List[int], edge_table: Dict[int, List[int]]) -> int:
+    
+    if current_item_edges is not []: 
+        current_item = _find_common_edges(current_item_edges)
+        if current_item is None:
+            current_item = _find_shortest_list(current_item_edges, edge_table)
+
+        # randomly chose another element from edge table if nothing works
+        if current_item is None: 
+            edge_table_keys = list(edge_table.keys())
+            current_item = np.random.choice(edge_table_keys)
+    else:
+        # ramdomly pick another key from edge table if 
+        # the current_item_edges is an empty list
+        edge_table_keys = list(edge_table.keys())
+        current_item = np.random.choice(edge_table_keys)
+    return current_item
+
+def _construct_child_edge_x(parent1: np.ndarray, parent2: np.ndarray) -> np.ndarray:
+    
+    edge_table = _construct_edge_table(parent1, parent2)
+    child = np.zeros(len(parent1), dtype=int) -1
+
+    current_item = np.random.randint(len(parent1))
+    
+    for child_idx in range(len(child)): 
+        child[child_idx] = current_item
+        current_item_edges = edge_table[current_item]
+        edge_table = _remove_item_references(current_item, edge_table)
+        current_item = _choose_next_item(current_item_edges, edge_table)
+
+    return child
+
+
+def _apply_edge_x(parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Effectively applies edge crossover
+    """
+    child_1 = _construct_child_edge_x(parent1, parent2)
+    child_2 = _construct_child_edge_x(parent1, parent2)
+
     return child_1, child_2
 
 class SingleTravelerX:
@@ -134,15 +256,21 @@ class SingleTravelerX:
 
         return copy.deepcopy(parent1), np.deepcopy(parent2)
 
-    def pmx(self, parent1: np.ndarray, parent2: np.array) -> Tuple[np.ndarray, np.ndarray]: 
+    def pmx(self, parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray, np.ndarray]: 
         rand_prob = np.random.rand()
         if rand_prob <= self.probability:
             return _apply_pmx(parent1, parent2)
         return copy.deepcopy(parent1), copy.deepcopy(parent2)
 
-    def cycle(self, parent1: np.ndarray, parent2: np.array) -> Tuple[np.ndarray, np.ndarray]:
+    def cycle(self, parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         rand_prob = np.random.rand()
         if rand_prob <= self.probability:
             return _apply_cycle_x(parent1, parent2)
         return copy.deepcopy(parent1), copy.deepcopy(parent2)
 
+
+    def edge(self, parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        rand_prob = np.random.rand()
+        if rand_prob <= self.probability:
+            return _apply_edge_x(parent1, parent2)
+        return copy.deepcopy(parent1), copy.deepcopy(parent2)
