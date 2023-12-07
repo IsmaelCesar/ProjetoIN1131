@@ -125,11 +125,11 @@ def _apply_cycle_x(parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray
     child_2 = _cycle_child(parent2, parent1)
     return child_1, child_2
 
-def _build_edge(edge_idx: int, chromosome_size: int) -> List[int, int]:
+def _build_edge(edge_idx: int, chromosome_size: int) -> List[int]:
 
     edge = [0, 0]
     edge[0] = edge_idx - 1
-    edge[1] = edge_idx + 1 if edge_idx + 1 > chromosome_size - 1 else 0
+    edge[1] = edge_idx + 1 if edge_idx + 1 < chromosome_size - 1 else 0
     return edge
 
 def _construct_edge_table(parent1: np.ndarray, parent2: np.ndarray) -> Dict[int, List[int]]:
@@ -142,7 +142,7 @@ def _construct_edge_table(parent1: np.ndarray, parent2: np.ndarray) -> Dict[int,
 
         element_p2_idx = np.where(parent2 == p1_el)[0][0]
         edge_p2 = _build_edge(element_p2_idx, len(parent1))
-        elements_edge_p2 = parent1[edge_p2].tolist()
+        elements_edge_p2 = parent2[edge_p2].tolist()
 
         table[p1_el] = sorted(elements_edge_p1 + elements_edge_p2)
 
@@ -156,7 +156,10 @@ def _remove_item_references(current_item: int, edge_table:  Dict[int, List[int]]
 
     for k in edge_table.keys(): 
         if current_item in edge_table[k]:
-            edge_table[k].remove(current_item)
+            item_count = edge_table[k].count(current_item)
+            # remove each of the occurences of current item on the edge list
+            for _ in range(item_count):
+                edge_table[k].remove(current_item)
 
     return edge_table
 
@@ -230,7 +233,8 @@ def _construct_child_edge_x(parent1: np.ndarray, parent2: np.ndarray) -> np.ndar
         child[child_idx] = current_item
         current_item_edges = edge_table[current_item]
         edge_table = _remove_item_references(current_item, edge_table)
-        current_item = _choose_next_item(current_item_edges, edge_table)
+        if edge_table:
+            current_item = _choose_next_item(current_item_edges, edge_table)
 
     return child
 
@@ -240,7 +244,7 @@ def _apply_edge_x(parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray,
     Effectively applies edge crossover
     """
     child_1 = _construct_child_edge_x(parent1, parent2)
-    child_2 = _construct_child_edge_x(parent1, parent2)
+    child_2 = _construct_child_edge_x(parent2, parent1)
 
     return child_1, child_2
 

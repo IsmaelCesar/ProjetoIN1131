@@ -49,4 +49,4 @@ def test_edge_crossover():
     print("Second child: ", child_2)
 
 if __name__ == "__main__": 
-    test_cycle()
+    test_edge_crossover()
