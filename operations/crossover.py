@@ -62,13 +62,13 @@ def _combine_child_parent_pmx(child: np.ndarray, parent1: np.ndarray, parent2: n
     for seg_idx in range(start, end + 1): 
         if parent2[seg_idx] not in child:
             #taking position of elements from parent1 in parent2
-            p1_p2_idx = np.where(parent2 == parent1[seg_idx])[0][0]
-            if child[p1_p2_idx] == -1: #vazio
-                child[p1_p2_idx] = parent2[p1_p2_idx]
+            p1_in_p2_idx = np.where(parent2 == parent1[seg_idx])[0][0]
+            if child[p1_in_p2_idx] == -1: #vazio
+                child[p1_in_p2_idx] = parent2[seg_idx]
             else:
                 #taking other position of elements from parent1 in parent2
-                p1_p2_idx = np.where(parent2 == parent1[p1_p2_idx])[0][0]
-                child[p1_p2_idx] = parent2[seg_idx]
+                p1_in_p2_idx = np.where(parent2 == parent1[p1_in_p2_idx])[0][0]
+                child[p1_in_p2_idx] = parent2[seg_idx]
 
     #copying the rest of parent 2
     for c_idx, (c_element, p2_element) in enumerate(zip(child, parent2)):
@@ -96,6 +96,32 @@ def _apply_pmx(parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray, np
 
     return child_1, child_2
 
+def _cycle_child(parent1: np.ndarray, parent2: np.ndarray) -> np.ndarray: 
+    """
+    auxiliary procedure for creating one child of the procedure _apply_cycle_x
+    """
+    child = np.zeros(len(parent1), dtype=int) -1
+
+    for p1_idx, _ in enumerate(parent1):
+        if parent2[p1_idx] not in child:
+            # first element of the cycle
+            cycle_idx = p1_idx
+            init_cycle = child[cycle_idx] = parent2[cycle_idx]
+            
+            #creating subsequent cycle
+            while parent2[cycle_idx] != init_cycle:
+                # position of the current element of the cycle of parent1 in parent2
+                cycle_idx = np.where(parent1 == parent2[cycle_idx])[0][0]
+                child[cycle_idx] = parent2[cycle_idx]
+
+    return child
+
+
+def _apply_cycle_x(parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    child_1 = _cycle_child(parent1, parent2)
+    child_2 = _cycle_child(parent2, parent1)
+    return child_1, child_2
+
 class SingleTravelerX:
 
     def __init__(self, probability: float = 0.5):
@@ -113,3 +139,10 @@ class SingleTravelerX:
         if rand_prob <= self.probability:
             return _apply_pmx(parent1, parent2)
         return copy.deepcopy(parent1), copy.deepcopy(parent2)
+
+    def cycle(self, parent1: np.ndarray, parent2: np.array) -> Tuple[np.ndarray, np.ndarray]:
+        rand_prob = np.random.rand()
+        if rand_prob <= self.probability:
+            return _apply_cycle_x(parent1, parent2)
+        return copy.deepcopy(parent1), copy.deepcopy(parent2)
+
