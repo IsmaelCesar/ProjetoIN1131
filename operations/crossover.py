@@ -8,28 +8,27 @@ def _combine_second_parent_segment(child: np.ndarray, parent: np.ndarray, end: i
     auxiliary method of the _apply_order_1_x for combining the second parent segment
     """
     
-    parent_idx = end+1
-    child_idx = end+1
+    parent_idx = child_idx = end+1
 
-    if parent_idx > len(parent):
+    if parent_idx > len(parent) - 1:
         parent_idx = 0
 
-    if child_idx > len(child): 
+    if child_idx > len(child) - 1 : 
         child_idx = 0
 
-    while parent_idx > end or parent < end:
-
-        if parent_idx > len(parent):
-            parent_idx = 0
+    while parent_idx > end or parent_idx < end:
 
         if parent[parent_idx] not in child:
             child[child_idx] = parent[parent_idx]
             child_idx += 1
 
-            if child_idx > len(child):
+            if child_idx > len(child) - 1:
                 child_idx = 0
 
         parent_idx += 1
+
+        if parent_idx > len(parent) - 1:
+            parent_idx = 0
 
     return child
 
@@ -38,23 +37,26 @@ def _apply_order_1_x(parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarr
     Effectively applies order 1 crossover on the cromossomes of the parents
     """
     cromossome_size = len(parent1)
-    start = np.random.randint(0, len(cromossome_size)-1)
-    end = np.random.randint(start, len(cromossome_size)-1)
+    start = np.random.randint(0, cromossome_size-2)
+    end = np.random.randint(start+1, cromossome_size-1)
 
     child_1 = np.zeros(cromossome_size, dtype=int) -1
     child_2 = np.zeros(cromossome_size, dtype=int) -1
     
     # first child
-    child_1[start: end] = copy.deepcopy(parent1[start:end])
+    child_1[start: end+1] = copy.deepcopy(parent1[start:end+1])
     child_1 = _combine_second_parent_segment(child_1, parent2, end)
 
     #second child:
-    child_2[start: end] = copy.deepcopy(parent2[start:end])
-    child_2 = _combine_second_parent_segment(child_1, parent1, end)
+    child_2[start: end+1] = copy.deepcopy(parent2[start:end+1])
+    child_2 = _combine_second_parent_segment(child_2, parent1, end)
 
     return child_1, child_2
 
 def _combine_child_parent_pmx(child: np.ndarray, parent1: np.ndarray, parent2: np.ndarray, start: int , end: int) -> np.ndarray:
+    """
+    Auxiliary procedure for the _apply_pmx method
+    """
 
     # dealing with the crossover segment
     for seg_idx in range(start, end + 1): 
@@ -99,14 +101,14 @@ class SingleTravelerX:
     def __init__(self, probability: float = 0.5):
         self.probability = probability
 
-    def order_1(self, parent1: np.ndarray, parent2: np.ndarray):
+    def order_1(self, parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         rand_prob = np.random.rand()
         if rand_prob <= self.probability:
           return _apply_order_1_x(parent1, parent2)
 
         return copy.deepcopy(parent1), np.deepcopy(parent2)
 
-    def pmx(self, parent1: np.ndarray, parent2: np.array): 
+    def pmx(self, parent1: np.ndarray, parent2: np.array) -> Tuple[np.ndarray, np.ndarray]: 
         rand_prob = np.random.rand()
         if rand_prob <= self.probability:
             return _apply_pmx(parent1, parent2)
