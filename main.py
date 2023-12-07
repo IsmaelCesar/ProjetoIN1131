@@ -4,11 +4,12 @@ from datetime import datetime
 import numpy as np
 from variation_operators import Mutation, Cross_over
 from selection_operators import Parent_Selection, Elitism
-from population import Get_Predefined_Data, Initialization, Fitness_Calculation
+from population import get_predefined_data, Initialization, fitness_calculation
 import statistics
 import logging
-from plotting import Plot_Cities, Plot_Objectve_Function, Plot_Cycle
+from plotting import plot_cities, Plot_Objectve_Function, Plot_Cycle
 from utils import Compute_Cycle
+from scipy.spatial.distance import cdist
 
 logger = logging.getLogger("tsp_ga")
 
@@ -31,27 +32,27 @@ def main():
     logger.addHandler(stream_handler)
     #<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-    Cidades_Codigo, Cidades, X_Coord, Y_Coord = Get_Predefined_Data()
+    cidades_codigo, cidades, coordenadas_cidades = get_predefined_data()
 
-    # computing distances
-    Dist = []
-    for i in range(len(Cidades)):
-        aux = []
-        for k in range(len(Cidades)):
-            aux.append(((X_Coord[i] - X_Coord[k])**2 +(Y_Coord[i] - Y_Coord[k])**2)**1/2)
-        Dist.append(aux)
+    # creating distance matrix
+    Dist = cdist(coordenadas_cidades, coordenadas_cidades, metric="euclidean")
+    #for i in range(len(Cidades)):
+    #    aux = []
+    #    for k in range(len(Cidades)):
+    #        aux.append(((X_Coord[i] - X_Coord[k])**2 +(Y_Coord[i] - Y_Coord[k])**2)**1/2)
+    #    Dist.append(aux)
 
     cities_fname = os.path.join(execution_dir, "cities.png")
-    Plot_Cities(X_Coord, Y_Coord, Cidades_Codigo, len(Cidades), Filename=cities_fname)
+    plot_cities(coordenadas_cidades, cidades_codigo, len(cidades), Filename=cities_fname)
 
     """**RESOLUÇÃO DO PROBLEMA EM UMA ÚNICA RODADA**"""
 
     #############################################################################################################################################################################
     ####################################################### Nesta célula eu de fato executo meu algoritmo evolucionário ########################################################
     #############################################################################################################################################################################
-    Population = Initialization(Cidades, pop=200)
-    Fitness = Fitness_Calculation(Population, Cidades, Dist)
-    Sorted_Population = np.array(sorted(Fitness, reverse=True, key=lambda x:x[-1]))
+    population = Initialization(cidades, pop=200)
+    fitness = fitness_calculation(population, cidades, Dist)
+    Sorted_Population = np.array(sorted(fitness, reverse=True, key=lambda x:x[-1]))
 
     Best_of_Generation, Average_of_Generation = [], []
     Best_Overall = Fitness[np.random.randint(0,len(Fitness)-1)]
