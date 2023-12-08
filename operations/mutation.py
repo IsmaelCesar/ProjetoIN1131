@@ -59,8 +59,11 @@ def _apply_insert(individual: np.ndarray) -> np.ndarray:
 
 class SingleTravelerMut:
 
-    def __init__(self, probability: float = 0.5):
+    def __init__(self, probability: float = 0.5, mutation_type: str = "swap"):
+        assert mutation_type in ["swap", "scramble", "inverse", "insert"]
+
         self.probability = probability
+        self.mutation_type = mutation_type
 
     def swap(self, individual: np.ndarray) -> np.ndarray: 
         rand_prob = np.random.rand()
@@ -70,18 +73,29 @@ class SingleTravelerMut:
     
     def scramble(self, individual: np.ndarray) -> np.ndarray:
         rand_prob = np.random.rand()
-        if rand_prob < self.probability: 
+        if rand_prob < self.probability:
             return _apply_scramble(individual)
         return copy.deepcopy(individual)
 
     def inverse(self, individual: np.ndarray) -> np.ndarray:
         rand_prob = np.random.rand()
-        if rand_prob < self.probability: 
+        if rand_prob < self.probability:
             return _apply_inverse(individual)
         return copy.deepcopy(individual)
 
     def insert(self, individual: np.ndarray) -> np.ndarray:
         rand_prob = np.random.rand()
-        if rand_prob < self.probability: 
+        if rand_prob < self.probability:
             return _apply_insert(individual)
         return copy.deepcopy(individual)
+
+    def apply(self, individual: np.ndarray) -> np.ndarray:
+
+        if self.mutation_type == "swap":
+            return self.swap(individual)
+        elif self.mutation_type == "scramble":
+            return self.scramble(individual)
+        elif self.mutation_type == "inverse":
+            return self.inverse(individual)
+        elif self.mutation_type == "insert":
+            return self.insert(individual)
