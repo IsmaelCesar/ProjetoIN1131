@@ -27,4 +27,7 @@ class SingleTSP:
 
         population = pop_initializer.random()
         fitness = np.apply_along_axis(fitness_calculator.distance_fitness, 1, population)
-        
+
+        for gen_idx in range(self.n_gen):
+            new_population = np.empty((pop_initializer.pop_size, pop_initializer.num_cidades))
+            
