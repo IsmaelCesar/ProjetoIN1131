@@ -3,9 +3,18 @@ from typing import Tuple, List
 
 class SelectIndividuals:
 
-    def __init__(self, num_individuals: int =  2):
+    def __init__(
+            self, 
+            num_individuals: int =  2, 
+            selection_type: str = "tournament",
+            scale_fitness: bool = True):
+
+        assert selection_type in ["random", "tornament", "roulette"]
+
         self.num_individuals = num_individuals
-    
+        self.selection_type = selection_type
+        self.scale_fitness = scale_fitness
+
     def random(self, individuals: np.ndarray) -> List[np.ndarray]:
         """
         Randomly selects two individuals from the individuals array for reproduction.
@@ -42,8 +51,7 @@ class SelectIndividuals:
     def roulette_wheel(
             self, 
             individuals: np.ndarray, 
-            fitness: np.ndarray,
-            scale_fitness: bool = True) -> List[np.ndarray]:
+            fitness: np.ndarray) -> List[np.ndarray]:
         """
         Applies roulette wheel algorithm for selecting parents.
         """
@@ -52,11 +60,11 @@ class SelectIndividuals:
         parent_idx = 0
         pool_range = list(range(len(individuals)))
 
-        if scale_fitness:
+        if self.scale_fitness:
             # scales fitness values to they all sum up to one
             temp_fit = fitness / fitness.sum()
         else: 
-            temp_fit = scale_fitness
+            temp_fit = fitness
 
         while parent_idx < len(parents):
 
@@ -70,3 +78,12 @@ class SelectIndividuals:
             parent_idx += 1
         
         return parents
+
+    def apply(self, individuals: np.ndarray, fitness: np.ndarray) -> List[np.ndarray]:
+
+        if self.selection_type == "random": 
+            return self.random(individuals)
+        elif self.selection_type == "tournament":
+            return self.tournament(individuals, fitness)
+        elif self.selection_type == "roulette":
+            return self.roulette_wheel(individuals, fitness)
