@@ -66,6 +66,7 @@ class SelectParents:
                 indiv_count += 1
 
             parents[parent_idx]
+            pool_range.remove(indiv_count)
             parent_idx += 1
         
         return parents
