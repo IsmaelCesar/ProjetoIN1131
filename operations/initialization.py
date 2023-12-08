@@ -1,4 +1,4 @@
-from numpy import np
+import numpy as np
 
 
 class Initialization:
@@ -8,7 +8,7 @@ class Initialization:
         self.pop_size = pop_size
     
     def random(self) -> np.ndarray:
-        pop = np.empty(self.pop_size, self.num_cidades)
+        pop = np.empty((self.pop_size, self.num_cidades), dtype=int)
         for el_idx in range(len(pop)):
             pop[el_idx] = np.random.permutation(self.num_cidades)
         return pop
