@@ -3,17 +3,17 @@ from typing import Tuple, List
 
 class SelectIndividuals:
 
-    def __init__(self, num_parents: int =  2):
-        self.num_parents = num_parents
+    def __init__(self, num_individuals: int =  2):
+        self.num_individuals = num_individuals
     
     def random(self, individuals: np.ndarray) -> List[np.ndarray]:
         """
         Randomly selects two individuals from the individuals array for reproduction.
         """
         pool_range = list(range(len(individuals)))
-        parents = [None] * self.num_parents
+        parents = [None] * self.num_individuals
         
-        for  p_idx, selected_p in enumerate(np.random.choice(pool_range, self.num_parents)):
+        for  p_idx, selected_p in enumerate(np.random.choice(pool_range, self.num_individuals)):
             parents[p_idx] = selected_p
         
         return parents
@@ -23,7 +23,7 @@ class SelectIndividuals:
         Select individuals from individuals array for reproduction based on tournament algorithm
         """
         parent_idx = 0
-        parents = [None] * self.num_parents
+        parents = [None] * self.num_individuals
         pool_range = list(range(len(individuals)))
 
         while parent_idx < len(parents):
@@ -48,7 +48,7 @@ class SelectIndividuals:
         Applies roulette wheel algorithm for selecting parents.
         """
 
-        parents = [None] * self.num_parents
+        parents = [None] * self.num_individuals
         parent_idx = 0
         pool_range = list(range(len(individuals)))
 
