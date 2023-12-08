@@ -1,3 +1,6 @@
+import sys
+sys.path.append("../.")
+
 from tsp import SingleTSP
 from operations.mutation import SingleTravelerMut
 from operations.crossover import SingleTravelerX
@@ -7,7 +10,7 @@ from operations.fitness import DistanceFitnessCalculator
 from population import get_predefined_data
 from scipy.spatial.distance import cdist
 
-def main():
+def test_evolution():
     cidades_codigo, cidades, coordenadas_cidades = get_predefined_data()
     distance_matrix = cdist(coordenadas_cidades, coordenadas_cidades)
 
@@ -22,4 +25,4 @@ def main():
     )
 
 if __name__ == "__main__":
-    main()
+    test_evolution()

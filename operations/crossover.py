@@ -260,7 +260,7 @@ class SingleTravelerX:
         if rand_prob <= self.probability:
           return _apply_order_1_x(parent1, parent2)
 
-        return copy.deepcopy(parent1), np.deepcopy(parent2)
+        return copy.deepcopy(parent1), copy.deepcopy(parent2)
 
     def pmx(self, parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray, np.ndarray]: 
         rand_prob = np.random.rand()
