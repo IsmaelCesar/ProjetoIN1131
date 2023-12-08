@@ -250,8 +250,10 @@ def _apply_edge_x(parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray,
 
 class SingleTravelerX:
 
-    def __init__(self, probability: float = 0.5):
+    def __init__(self, probability: float = 0.5, crossover_type: str = "order"):
+        assert crossover_type in ["order", "pmx", "cycle", "edge"]
         self.probability = probability
+        self.crossover_type = crossover_type
 
     def order_1(self, parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         rand_prob = np.random.rand()
@@ -278,3 +280,14 @@ class SingleTravelerX:
         if rand_prob <= self.probability:
             return _apply_edge_x(parent1, parent2)
         return copy.deepcopy(parent1), copy.deepcopy(parent2)
+
+    def apply(self, parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+
+        if self.crossover_type == "order":
+            return self.order_1(parent1, parent2)
+        elif self.crossover_type == "pmx":
+            return self.pmx(parent1, parent2)
+        elif self.crossover_type == "cycle":
+            return self.cycle(parent1, parent2)
+        elif self.crossover_type == "edge": 
+            return self.edge(parent1, parent2)
