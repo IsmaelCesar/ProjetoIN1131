@@ -1,24 +1,24 @@
 import numpy as np
 from typing import Tuple, List
 
-class SelectParents:
+class SelectIndividuals:
 
     def __init__(self, num_parents: int =  2):
         self.num_parents = num_parents
     
-    def random(self, individuals: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def random(self, individuals: np.ndarray) -> List[np.ndarray]:
         """
         Randomly selects two individuals from the individuals array for reproduction.
         """
         pool_range = list(range(len(individuals)))
-        (parent1_index, parent2_index) = np.random.choice(pool_range)
+        parents = [None] * self.num_parents
+        
+        for  p_idx, selected_p in enumerate(np.random.choice(pool_range, self.num_parents)):
+            parents[p_idx] = selected_p
+        
+        return parents
 
-        parent1 = individuals[parent1_index]
-        parent2 = individuals[parent2_index]
-
-        return parent1, parent2
-
-    def tournament(self, individuals: np.ndarray, fitness: np.ndarray) -> List[np.ndarray, np.ndarray]:
+    def tournament(self, individuals: np.ndarray, fitness: np.ndarray) -> List[np.ndarray]:
         """
         Select individuals from individuals array for reproduction based on tournament algorithm
         """
@@ -43,7 +43,7 @@ class SelectParents:
             self, 
             individuals: np.ndarray, 
             fitness: np.ndarray,
-            scale_fitness: bool = True) -> List[np.ndarray, np.ndarray]:
+            scale_fitness: bool = True) -> List[np.ndarray]:
         """
         Applies roulette wheel algorithm for selecting parents.
         """
