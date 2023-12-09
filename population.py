@@ -3,6 +3,14 @@ import numpy as np
 from typing import Tuple, List
 
 def get_predefined_data() -> Tuple[List[str], List[int], np.ndarray]:
+    """
+    Predefined data for testing 
+
+    returns:
+      cidades_codigo: a list with the cities code
+      cidades: a list of integers with the cities indices
+      coordenadas_cidades: np.ndarray with the cities X and Y coordinates 
+    """
     cidades_codigo = ['Abreu e Lima','Araçoiaba','Cabo de Santo Agostinho','Camaragibe',
                   'Igarassu','Ilha de Itamaracá','Ipojuca','Itapissuma','Jaboatão dos Guararapes',
                   'Moreno','Olinda','Paulista','Recife','São Lourenço da Mata']

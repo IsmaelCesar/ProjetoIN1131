@@ -90,3 +90,43 @@ class SelectIndividuals:
             return self.tournament(individuals, fitness)
         elif self.selection_type == "roulette":
             return self.roulette_wheel(individuals, fitness)
+
+class STSPKElitism:
+    """
+    Esta classe implementa o k-elitismo pars single
+    traveling salesman problem,
+    onde a mesma garante que os k-melhores individuos
+    da população anterior passem para geração seguinte
+    """
+    def __init__(self, k: int = 1):
+        self.k = k
+
+    def apply(
+            self, 
+            old_population: np.ndarray, 
+            old_fitness: np.ndarray, 
+            new_population: np.ndarray, 
+            new_fitness: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Effectivelly applies K-elitism
+        """
+
+        pop_size = len(old_population)
+        num_var = len(old_population[0])        
+
+        # getting best k of old population
+        best_k = old_fitness.argsort()[:self.k]
+        
+        # eliminating the worst k of new population
+        rest_of_new = new_fitness.argsort()[::-1][self.k:]
+
+        updated_pop = np.empty((pop_size, num_var), dtype=int)
+        updated_fit = np.empty((pop_size,))
+        
+        updated_pop[:self.k] = old_population[best_k]
+        updated_fit[:self.k] = old_fitness[best_k]
+
+        updated_pop[self.k:] = new_population[rest_of_new]
+        updated_fit[self.k:] = new_fitness[rest_of_new]
+
+        return updated_pop, updated_fit

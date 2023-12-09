@@ -20,31 +20,39 @@ def plot_cities(coordenadas_cidades: np.ndarray, cidades_codigo: List[str] , num
     plt.clf()
 
 
-def Plot_Objectve_Function(Average, Best, Filename: str = None):
-    plt.plot(Average, color='gray', label="Average")
-    plt.plot(Best, color='blue', label="Best")
+def plot_objective_function(average, best, filename: str = None):
+    plt.plot(average, color='gray', label="Average")
+    plt.plot(best, color='blue', label="Best")
     plt.xlabel('Generations')
     plt.ylabel('Objective_Function')
     plt.legend(loc="best")
-    if Filename is not None:
-        plt.savefig(Filename)
+    if filename is not None:
+        plt.savefig(filename)
     plt.show()
     plt.close()
     plt.clf()
 
 
-def Plot_Cycle(Plot_X, Plot_Y, Cycle, Cycle_Codigos, Filename: str = None):
+def plot_cycle(coordenadas_cidades, ciclo, codigos_ciclo, filename: str = None):
     fig = plt.figure(figsize=(6,6))
     ax = fig.add_subplot(1, 1, 1, aspect=1)
-    for i in range(len(Cycle)):
-        ax.text(Plot_X[i], Plot_Y[i], Cycle_Codigos[i], fontsize=6, fontweight='bold', color='black', ha='center', va='center')
-    plt.scatter(Plot_X, Plot_Y, s=20, c=None)
-    plt.plot(Plot_X, Plot_Y)
-    plt.title("Travelling Salesman Problem Optimized", fontsize=14, fontweight='bold')
-    plt.xlabel('X_Coord')
-    plt.ylabel('Y_Coord')
-    if Filename is not None:
-        plt.savefig(Filename)
+    for ciclo_value in ciclo:
+        ax.text(
+            coordenadas_cidades[ciclo_value, 0], 
+            coordenadas_cidades[ciclo_value, 1], 
+            codigos_ciclo[ciclo_value], 
+            fontsize=6, 
+            fontweight='bold', 
+            color='black', 
+            ha='center', 
+            va='center')
+    ax.scatter(coordenadas_cidades[:, 0], coordenadas_cidades[:, 1], s=20, c=None)
+    ax.plot(coordenadas_cidades[ciclo][:, 0], coordenadas_cidades[ciclo][:, 1])
+    ax.set_title("Travelling Salesman Problem Optimized", fontsize=14, fontweight='bold')
+    ax.set_xlabel('X_Coord')
+    ax.set_ylabel('Y_Coord')
+    if filename is not None:
+        plt.savefig(filename)
     plt.show()
     plt.close()
     plt.clf()

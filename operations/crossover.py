@@ -58,22 +58,28 @@ def _combine_child_parent_pmx(child: np.ndarray, parent1: np.ndarray, parent2: n
     Auxiliary procedure for the _apply_pmx method
     """
 
-    # dealing with the crossover segment
+    #check whith element have not been copied
+    no_child = []
     for seg_idx in range(start, end + 1): 
-        if parent2[seg_idx] not in child:
-            #taking position of elements from parent1 in parent2
-            p1_in_p2_idx = np.where(parent2 == parent1[seg_idx])[0][0]
-            if child[p1_in_p2_idx] == -1: #vazio
-                child[p1_in_p2_idx] = parent2[seg_idx]
-            else:
-                #taking other position of elements from parent1 in parent2
+        if parent2[seg_idx] not in child: 
+            no_child += [(seg_idx, parent2[seg_idx])]
+    
+    for p2_idx, p2_value  in no_child:
+        p1_in_p2_idx = np.where(parent2 == parent1[p2_idx])[0][0]
+        if child[p1_in_p2_idx] == -1:
+                child[p1_in_p2_idx] = p2_value
+        else:
+            # look for another empty element on the child individual
+            while child[p1_in_p2_idx] != p2_value:
                 p1_in_p2_idx = np.where(parent2 == parent1[p1_in_p2_idx])[0][0]
-                child[p1_in_p2_idx] = parent2[seg_idx]
+                if child[p1_in_p2_idx] == -1:
+                    child[p1_in_p2_idx] = p2_value
 
-    #copying the rest of parent 2
-    for c_idx, (c_element, p2_element) in enumerate(zip(child, parent2)):
-        if c_element == -1: 
-            child[c_idx] = p2_element
+    for p2_idx, p2_element in enumerate(parent2):
+       if p2_element not in child:
+           # get the first index marked as empty
+           empty_element_idx = np.where(child == -1)[0][0]
+           child[empty_element_idx] = p2_element
 
     return child
 
@@ -82,8 +88,8 @@ def _apply_pmx(parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray, np
     Effectively apply pmx crossover on the cromossome of the parents
     """
     cromossome_size = len(parent1)
-    start = np.random.randint(0, cromossome_size - 1)
-    end = np.random.randint(start, cromossome_size - 1)
+    start = np.random.randint(0, cromossome_size - 2)
+    end = np.random.randint(start + 1, cromossome_size - 1)
 
     child_1 = np.zeros(cromossome_size, dtype=int) -1
     child_2 = np.zeros(cromossome_size, dtype=int) -1
@@ -206,7 +212,7 @@ def _find_shortest_list(current_item_edges: List[int], edge_table: Dict[int, Lis
 
 def _choose_next_item(current_item_edges: List[int], edge_table: Dict[int, List[int]]) -> int:
     
-    if current_item_edges is not []: 
+    if current_item_edges: 
         current_item = _find_common_edges(current_item_edges)
         if current_item is None:
             current_item = _find_shortest_list(current_item_edges, edge_table)
@@ -260,7 +266,7 @@ class SingleTravelerX:
         if rand_prob <= self.probability:
           return _apply_order_1_x(parent1, parent2)
 
-        return copy.deepcopy(parent1), np.deepcopy(parent2)
+        return copy.deepcopy(parent1), copy.deepcopy(parent2)
 
     def pmx(self, parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray, np.ndarray]: 
         rand_prob = np.random.rand()
