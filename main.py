@@ -26,13 +26,13 @@ def main():
     cidades_codigo, cidades, coordenadas_cidades = get_predefined_data()
     distance_matrix = cdist(coordenadas_cidades, coordenadas_cidades)
 
-    stsp = SingleTSP(n_gen=10)
+    stsp = SingleTSP(n_gen=100)
 
     #plot_cities(coordenadas_cidades, cidades_codigo, len(cidades))
 
     stsp.evolve(
         Initialization(num_cidades=len(cidades), pop_size=100),
-        SingleTravelerX(crossover_type="edge"),
+        SingleTravelerX(crossover_type="pmx"),
         SingleTravelerMut(mutation_type="inverse"),
         SelectIndividuals(),
         DistanceFitnessCalculator(distance_matrix),
@@ -40,6 +40,7 @@ def main():
     )
 
     best_individual = stsp.statistics["best_individual"][-1]
+
     logger.info(f"Best individual: {best_individual}")
 
     #computed_cycle = compute_cycle(best_individual, coordenadas_cidades)

@@ -2,6 +2,7 @@
 import numpy as np
 import copy 
 from typing import Tuple, List, Dict, Union
+from utils import check_repetition
 
 def _combine_second_parent_segment(child: np.ndarray, parent: np.ndarray, end: int):
     """
@@ -66,14 +67,14 @@ def _combine_child_parent_pmx(child: np.ndarray, parent1: np.ndarray, parent2: n
             if child[p1_in_p2_idx] == -1: #vazio
                 child[p1_in_p2_idx] = parent2[seg_idx]
             else:
-                #taking other position of elements from parent1 in parent2
+                #taking other position of elements from parent1 
                 p1_in_p2_idx = np.where(parent2 == parent1[p1_in_p2_idx])[0][0]
                 child[p1_in_p2_idx] = parent2[seg_idx]
 
     #copying the rest of parent 2
-    for c_idx, (c_element, p2_element) in enumerate(zip(child, parent2)):
-        if c_element == -1: 
-            child[c_idx] = p2_element
+    for p2_idx, p2_element in enumerate(parent2):
+        if child[p2_idx] == -1: 
+            child[p2_idx] = p2_element
 
     return child
 
@@ -88,18 +89,25 @@ def _apply_pmx(parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray, np
     child_1 = np.zeros(cromossome_size, dtype=int) -1
     child_2 = np.zeros(cromossome_size, dtype=int) -1
 
-    try: 
-        child_1[start: end + 1] = copy.deepcopy(parent1[start: end + 1])
-        child_1 = _combine_child_parent_pmx(child_1, parent1, parent2, start, end)
+    child_1[start: end + 1] = copy.deepcopy(parent1[start: end + 1])
+    child_1 = _combine_child_parent_pmx(child_1, parent1, parent2, start, end)
 
-        child_2[start: end + 1] = copy.deepcopy(parent2[start: end + 1])
-        child_2 = _combine_child_parent_pmx(child_2, parent2, parent1, start, end)
-    except Exception as e: 
-        print(e)
-        print("parent1: ", parent1)
-        print("parent2: ", parent2)
-        print("start: ", start, " end: ", end)
-        raise Exception("Error")
+    child_2[start: end + 1] = copy.deepcopy(parent2[start: end + 1])
+    child_2 = _combine_child_parent_pmx(child_2, parent2, parent1, start, end)
+
+    if check_repetition(list(range(cromossome_size)), child_1):
+        print("Parent 1: ", parent1)
+        print("Parent 2: ", parent2)
+        print("start: ", start)
+        print("end: ", end)
+        raise Exception("Repetition Child 1")
+
+    elif check_repetition(list(range(cromossome_size)), child_2):
+        print("Parent 1: ", parent1)
+        print("Parent 2: ", parent2)
+        print("start: ", start)
+        print("end: ", end)
+        raise Exception("Repetition Child 2")
 
     return child_1, child_2
 

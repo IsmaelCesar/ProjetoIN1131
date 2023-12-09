@@ -14,3 +14,18 @@ def compute_cycle(best_overall, cidades_coordenadas):
     coordenadas_ciclo = cidades_coordenadas[computed_cycle]
 
     return computed_cycle, coordenadas_ciclo
+
+
+def check_repetition(cidades_range: np.ndarray, individual: np.ndarray ) -> bool:
+    city_dict = {}
+
+    # initialize zero
+    for city_key in cidades_range:
+        city_dict[city_key] = 0
+    
+    # count 
+    for city_indiv in individual: 
+        city_dict[city_indiv] += 1
+    
+    reps_arr = np.array(list(city_dict.values()))
+    return len(reps_arr[reps_arr >= 2]) > 0
