@@ -2,7 +2,7 @@ import numpy as np
 from operations.mutation import SingleTravelerMut
 from operations.crossover import SingleTravelerX
 from operations.initialization import Initialization
-from operations.selection import SelectIndividuals
+from operations.selection import SelectIndividuals, STSPKElitism
 from operations.fitness import DistanceFitnessCalculator
 from typing import Tuple
 
@@ -49,7 +49,8 @@ class SingleTSP:
                crossover_op: SingleTravelerX,
                mutation_op: SingleTravelerMut, 
                selection_op: SelectIndividuals,
-               fitness_calculator: DistanceFitnessCalculator):
+               fitness_calculator: DistanceFitnessCalculator,
+               k_elitism: STSPKElitism):
 
         pop_size = pop_initializer.pop_size
 
@@ -76,6 +77,8 @@ class SingleTSP:
             
             # sorting by fitness
             new_population, new_fitness = self.sort_fitness(new_population, new_fitness)
+
+            population, fitness = k_elitism.apply(population, fitness, new_population, new_fitness)
 
             self.save_statistics(population, fitness)
 
