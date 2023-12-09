@@ -32,7 +32,7 @@ def main():
 
     stsp.evolve(
         Initialization(num_cidades=len(cidades), pop_size=100),
-        SingleTravelerX(crossover_type="pmx"),
+        SingleTravelerX(crossover_type="edge"),
         SingleTravelerMut(mutation_type="inverse"),
         SelectIndividuals(),
         DistanceFitnessCalculator(distance_matrix),
