@@ -28,7 +28,7 @@ def main():
 
     stsp = SingleTSP(n_gen=100)
 
-    #plot_cities(coordenadas_cidades, cidades_codigo, len(cidades))
+    plot_cities(coordenadas_cidades, cidades_codigo, len(cidades))
 
     stsp.evolve(
         Initialization(num_cidades=len(cidades), pop_size=200),
@@ -48,8 +48,8 @@ def main():
     cycle[:-1] = best_individual
     cycle[-1] = best_individual[0]
 
-    #plot_cycle(coordenadas_cidades, cycle, cidades_codigo)
-    #plot_objective_function(stsp.statistics["mean_fitness"], stsp.statistics["best_fitness"])
+    plot_cycle(coordenadas_cidades, cycle, cidades_codigo)
+    plot_objective_function(stsp.statistics["mean_fitness"], stsp.statistics["best_fitness"])
 
 if __name__ == "__main__":
     main()
