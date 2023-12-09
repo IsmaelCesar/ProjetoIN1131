@@ -212,7 +212,7 @@ def _find_shortest_list(current_item_edges: List[int], edge_table: Dict[int, Lis
 
 def _choose_next_item(current_item_edges: List[int], edge_table: Dict[int, List[int]]) -> int:
     
-    if current_item_edges is not []: 
+    if current_item_edges: 
         current_item = _find_common_edges(current_item_edges)
         if current_item is None:
             current_item = _find_shortest_list(current_item_edges, edge_table)
