@@ -7,7 +7,7 @@ from operations.initialization import Initialization
 from operations.selection import SelectIndividuals, STSPKElitism
 from operations.fitness import DistanceFitnessCalculator
 from population import get_predefined_data
-from plotting import plot_cities, plot_cycle
+from plotting import plot_cities, plot_cycle, plot_objective_function
 from utils import compute_cycle
 from scipy.spatial.distance import cdist
 
@@ -26,17 +26,17 @@ def main():
     cidades_codigo, cidades, coordenadas_cidades = get_predefined_data()
     distance_matrix = cdist(coordenadas_cidades, coordenadas_cidades)
 
-    stsp = SingleTSP(n_gen=1000)
+    stsp = SingleTSP(n_gen=10)
 
     #plot_cities(coordenadas_cidades, cidades_codigo, len(cidades))
 
     stsp.evolve(
         Initialization(num_cidades=len(cidades), pop_size=100),
-        SingleTravelerX(crossover_type="order"),
+        SingleTravelerX(crossover_type="pmx"),
         SingleTravelerMut(mutation_type="inverse"),
         SelectIndividuals(),
         DistanceFitnessCalculator(distance_matrix),
-        STSPKElitism()
+        STSPKElitism(k=3)
     )
 
     best_individual = stsp.statistics["best_individual"][-1]
@@ -47,8 +47,8 @@ def main():
     cycle[:-1] = best_individual
     cycle[-1] = best_individual[0]
 
-    plot_cycle(coordenadas_cidades, cycle, cidades_codigo)
-    
+    #plot_cycle(coordenadas_cidades, cycle, cidades_codigo)
+    #plot_objective_function(stsp.statistics["mean_fitness"], stsp.statistics["best_fitness"])
 
 if __name__ == "__main__":
     main()

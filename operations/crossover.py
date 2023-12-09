@@ -82,17 +82,24 @@ def _apply_pmx(parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray, np
     Effectively apply pmx crossover on the cromossome of the parents
     """
     cromossome_size = len(parent1)
-    start = np.random.randint(0, cromossome_size - 1)
-    end = np.random.randint(start, cromossome_size - 1)
+    start = np.random.randint(0, cromossome_size - 2)
+    end = np.random.randint(start + 1, cromossome_size - 1)
 
     child_1 = np.zeros(cromossome_size, dtype=int) -1
     child_2 = np.zeros(cromossome_size, dtype=int) -1
 
-    child_1[start: end + 1] = copy.deepcopy(parent1[start: end + 1])
-    child_1 = _combine_child_parent_pmx(child_1, parent1, parent2, start, end)
+    try: 
+        child_1[start: end + 1] = copy.deepcopy(parent1[start: end + 1])
+        child_1 = _combine_child_parent_pmx(child_1, parent1, parent2, start, end)
 
-    child_2[start: end + 1] = copy.deepcopy(parent2[start: end + 1])
-    child_2 = _combine_child_parent_pmx(child_2, parent2, parent1, start, end)
+        child_2[start: end + 1] = copy.deepcopy(parent2[start: end + 1])
+        child_2 = _combine_child_parent_pmx(child_2, parent2, parent1, start, end)
+    except Exception as e: 
+        print(e)
+        print("parent1: ", parent1)
+        print("parent2: ", parent2)
+        print("start: ", start, " end: ", end)
+        raise Exception("Error")
 
     return child_1, child_2
 
