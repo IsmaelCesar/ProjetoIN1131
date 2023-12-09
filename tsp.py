@@ -15,8 +15,10 @@ class SingleTSP:
         self.n_gen = n_gen
         self.statistics = {
             "mean_fitness": [],
+            "std_fitness": [],
             "best_overall": [],
-            "best_individual": []
+            "best_individual": [],
+            "best_fitness": [],
         }
 
     def sort_fitness(self, individuals: np.ndarray, fitness: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -27,9 +29,20 @@ class SingleTSP:
         indiv_fit = np.array(sorted(indiv_fit, key=lambda x: x[-1]))
         
         individuals = indiv_fit[:, :-1].astype(int)
-        fitness = indiv_fit[:, -1:]
+
+        # remove o eixo adicional introduzido por np.newaxis
+        fitness = indiv_fit[:, -1:].reshape(-1)
 
         return individuals, fitness
+
+    def save_statistics(self, individuals: np.ndarray, fitness: np.ndarray) -> None:
+
+        min_fitness_idx = fitness.argmin()
+        
+        self.statistics["best_individual"].append(individuals[min_fitness_idx])
+        self.statistics["best_fitness"].append(fitness[min_fitness_idx])
+        self.statistics["mean_fitness"].append(fitness.mean())
+        self.statistics["std_fitness"].append(fitness.std())
     
     def evolve(self,
                pop_initializer: Initialization,
@@ -45,6 +58,8 @@ class SingleTSP:
         fitness = np.apply_along_axis(fitness_calculator.distance_fitness, 1, population)
         population, fitness = self.sort_fitness(population, fitness)
 
+        self.save_statistics(population, fitness)
+
         for gen_idx in range(self.n_gen):
             new_population = []
 
@@ -56,8 +71,16 @@ class SingleTSP:
                 mchild_2 = mutation_op.apply(child_2)
                 new_population += [mchild_1, mchild_2]
 
+            # computing new fitness
             new_population = np.array(new_population, dtype=int)
             new_fitness = np.apply_along_axis(fitness_calculator.distance_fitness, 1, new_population)
+            
+            # sorting by fitness
+            new_population, new_fitness = self.sort_fitness(new_population, new_fitness)
+
+            self.save_statistics(population, fitness)
+
+
 
 
 
