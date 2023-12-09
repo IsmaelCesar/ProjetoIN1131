@@ -1,18 +1,16 @@
+import numpy as np
 
-
-def Compute_Cycle(Best_Overall, X_Coord, Y_Coord, Cidades_Codigo):
+def compute_cycle(best_overall, cidades_coordenadas):
     """
     Gets the coorinates and the city codes from the bets overall solution
     found by the genetic algorithm
     """
-    Computed_Cycle = [Best_Overall[i] for i in range(len(Best_Overall) -1)]
-    Cycle_X, Cycle_Y, Cycle_Codigos = [], [], []
-    for i in Computed_Cycle:
-        Cycle_X.append(X_Coord[int(i)])
-        Cycle_Y.append(Y_Coord[int(i)])
-        Cycle_Codigos.append(Cidades_Codigo[int(i)])
+    # computing cycle
+    computed_cycle = np.zeros((len(best_overall) + 1, ), dtype=int) -1 
+    computed_cycle[:-1] = best_overall
+    computed_cycle[-1] = best_overall[0]
+    
+    #getting coordinates
+    coordenadas_ciclo = cidades_coordenadas[computed_cycle]
 
-    Cycle_X.append(Cycle_X[0])
-    Cycle_Y.append(Cycle_Y[0])
-
-    return Computed_Cycle, Cycle_X, Cycle_Y, Cycle_Codigos
+    return computed_cycle, coordenadas_ciclo

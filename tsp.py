@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 from operations.mutation import SingleTravelerMut
 from operations.crossover import SingleTravelerX
@@ -5,6 +6,15 @@ from operations.initialization import Initialization
 from operations.selection import SelectIndividuals, STSPKElitism
 from operations.fitness import DistanceFitnessCalculator
 from typing import Tuple
+
+logger = logging.getLogger("main.tsp_ga")
+
+# >> setting up logging >>>>>
+stream_handler = logging.StreamHandler()
+
+logger.setLevel(logging.INFO)
+logger.addHandler(stream_handler)
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 class SingleTSP:
     """
@@ -61,6 +71,10 @@ class SingleTSP:
         self.save_statistics(population, fitness)
 
         for gen_idx in range(self.n_gen):
+            
+            best_overall = self.statistics["best_fitness"][0]
+            logger.info(f"Generation {gen_idx}, Best overall solution: {best_overall}")
+
             new_population = []
 
             # new population creation
@@ -81,10 +95,3 @@ class SingleTSP:
             population, fitness = k_elitism.apply(population, fitness, new_population, new_fitness)
 
             self.save_statistics(population, fitness)
-
-
-
-
-
-
-            
