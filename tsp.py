@@ -39,7 +39,7 @@ class SingleTSP:
 
         min_fitness_idx = fitness.argmin()
         
-        self.statistics["best_individual"].append(individuals[min_fitness_idx])
+        self.statistics["best_individual"].append(individuals[min_fitness_idx].copy())
         self.statistics["best_fitness"].append(fitness[min_fitness_idx])
         self.statistics["mean_fitness"].append(fitness.mean())
         self.statistics["std_fitness"].append(fitness.std())
@@ -52,7 +52,6 @@ class SingleTSP:
                fitness_calculator: DistanceFitnessCalculator):
 
         pop_size = pop_initializer.pop_size
-        #num_cidades = pop_initializer.num_cidades
 
         population = pop_initializer.random()
         fitness = np.apply_along_axis(fitness_calculator.distance_fitness, 1, population)
