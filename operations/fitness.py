@@ -46,10 +46,25 @@ class MinMaxFitnessCalculator:
 
         return routes_length
 
-    def distance_fitness(self, individual, traveler_breaks):
+    def distance_fitness(self, individual, traveler_breaks) -> float:
         
         routes = _extract_routes(individual, traveler_breaks)
 
         routes_length = self._compute_route_legnth(routes)
         max_route_idx = np.argmax(routes_length)
         return _compute_distance_fitness(routes[max_route_idx], self.distance_matrix)
+
+
+class MinSumFitnessCalculator: 
+
+    def __init__(self, distance_matrix: np.ndarray):
+        self.distance_matrix = distance_matrix
+    
+    def distance_fitness(self, individual, traveler_breaks) -> float:
+        routes = _extract_routes(individual, traveler_breaks)
+
+        min_sum = 0
+        for rt in routes:
+            min_sum += _compute_distance_fitness(rt, self.distance_matrix)
+
+        return min_sum         

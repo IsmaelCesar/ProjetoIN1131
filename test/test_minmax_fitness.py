@@ -28,7 +28,8 @@ def test_minmax_fitness():
     print("Positions: \n", positions)
     fitness = fitness_calculator.distance_fitness(individual, breaks)
     print("Fitness: ", fitness)
-    print("CMP Fitness: ", fitness == cmp_dist)
+    cmp_result = "OK" if np.isclose(fitness, cmp_dist) else "NOT OK"
+    print("CMP Fitness: ",cmp_result)
     print("--"*50)
 
 def test_application_of_fitness_over_an_axis():
