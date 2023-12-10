@@ -1,5 +1,6 @@
 import numpy as np
 from typing import List
+from abc import ABC, abstractmethod
 
 def _compute_distance_fitness(individual: np.ndarray, distance_matrix: np.ndarray) -> float:
     point_a_range = range(0, len(individual) - 1)
@@ -34,10 +35,20 @@ class DistanceFitnessCalculator:
         """
         return _compute_distance_fitness(individual, self.distance_matrix)
 
-class MinMaxFitnessCalculator:
+class MTSPFitnessCalculator(ABC):
 
     def __init__(self, distance_matrix: np.ndarray):
         self.distance_matrix = distance_matrix
+    
+    @abstractmethod
+    def distance_fitness(self, individual: np.ndarray, traveler_breaks: List[int]): 
+        raise Exception("Not implemented error")
+
+class MinMaxFitnessCalculator(MTSPFitnessCalculator):
+
+    def __init__(self, distance_matrix: np.ndarray):
+        #self.distance_matrix = distance_matrix
+        super().__init__(distance_matrix)
 
     def _compute_route_legnth(self, routes) -> List[int]:
         routes_length = []
@@ -46,7 +57,7 @@ class MinMaxFitnessCalculator:
 
         return routes_length
 
-    def distance_fitness(self, individual, traveler_breaks) -> float:
+    def distance_fitness(self, individual: np.ndarray, traveler_breaks: List[int]) -> float:
         
         routes = _extract_routes(individual, traveler_breaks)
 
@@ -55,12 +66,13 @@ class MinMaxFitnessCalculator:
         return _compute_distance_fitness(routes[max_route_idx], self.distance_matrix)
 
 
-class MinSumFitnessCalculator: 
+class MinSumFitnessCalculator(MTSPFitnessCalculator): 
 
     def __init__(self, distance_matrix: np.ndarray):
-        self.distance_matrix = distance_matrix
+        #self.distance_matrix = distance_matrix
+        super().__init__(distance_matrix)
     
-    def distance_fitness(self, individual, traveler_breaks) -> float:
+    def distance_fitness(self, individual: np.ndarray, traveler_breaks: List[int]) -> float:
         routes = _extract_routes(individual, traveler_breaks)
 
         min_sum = 0
