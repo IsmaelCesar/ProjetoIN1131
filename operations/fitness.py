@@ -23,16 +23,18 @@ def _extract_routes(individual: np.ndarray, traveler_breaks: List[int], origin: 
     """
     routes = []
     temp_idx = 0
-    include_origin = 2 if not origin else 0
+    include_origin = 2 if origin is not None else 0
 
     for t_break in traveler_breaks:
         #defining route
         rt = np.zeros(((t_break - temp_idx) + include_origin), dtype=int) -1
-        rt[1:-1] = individual[temp_idx:t_break]
 
-        if not origin: 
+        if origin is not None: 
+            rt[1:-1] = individual[temp_idx:t_break]
             rt[0] = origin
             rt[-1] = origin
+        else: 
+            rt = individual[temp_idx:t_break]
 
         #including in route list
         routes += [rt]
