@@ -100,7 +100,6 @@ class MTSP:
 
     def __init__(self, n_gen: int, origin: int, traveler_breaks: List[int]):
         self.n_gen = n_gen
-        self.origin = origin
         self.traveler_breaks = traveler_breaks
     
     def evolve(self,

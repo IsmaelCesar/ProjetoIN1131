@@ -16,11 +16,26 @@ def _compute_distance_fitness(individual: np.ndarray, distance_matrix: np.ndarra
 
     return individual_fitness
 
-def _extract_routes(individual: np.ndarray, traveler_breaks: np.ndarray):
+def _extract_routes(individual: np.ndarray, traveler_breaks: List[int], origin: int = None) -> List[np.ndarray]:
+    """
+    Extract traveler routes based on traveler_breaks.
+    If origin is not None then it will include the origin in the route extraction
+    """
     routes = []
     temp_idx = 0
+    include_origin = 2 if not origin else 0
+
     for t_break in traveler_breaks:
-        routes += [individual[temp_idx:t_break]]
+        #defining route
+        rt = np.zeros(((t_break - temp_idx) + include_origin), dtype=int) -1
+        rt[1:-1] = individual[temp_idx:t_break]
+
+        if not origin: 
+            rt[0] = origin
+            rt[-1] = origin
+
+        #including in route list
+        routes += [rt]
         temp_idx = t_break
     return routes
 
@@ -37,8 +52,9 @@ class DistanceFitnessCalculator:
 
 class MTSPFitnessCalculator(ABC):
 
-    def __init__(self, distance_matrix: np.ndarray):
+    def __init__(self, distance_matrix: np.ndarray, origin: int):
         self.distance_matrix = distance_matrix
+        self.origin = origin
     
     @abstractmethod
     def distance_fitness(self, individual: np.ndarray, traveler_breaks: List[int]): 
