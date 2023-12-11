@@ -1,5 +1,5 @@
 import numpy as np
-from operations.fitness import _extract_routes
+from operations.fitness import extract_routes
 
 def test_origin_inclusion():
     
@@ -9,7 +9,7 @@ def test_origin_inclusion():
 
     origin = 0
 
-    routes = _extract_routes(individual, breaks, origin=origin)
+    routes = extract_routes(individual, breaks, origin=origin)
 
     print("--"*50)
     print("Previous Routes: \n", routes)
@@ -27,7 +27,7 @@ def test_origin_not_included():
 
     breaks = [3, 8, 11]
 
-    routes = _extract_routes(individual, breaks, origin=None)
+    routes = extract_routes(individual, breaks, origin=None)
 
     print("--"*50)
     print("Previous Routes: \n", routes)

@@ -16,7 +16,7 @@ def _compute_distance_fitness(individual: np.ndarray, distance_matrix: np.ndarra
 
     return individual_fitness
 
-def _extract_routes(individual: np.ndarray, traveler_breaks: List[int], origin: int = None) -> List[np.ndarray]:
+def extract_routes(individual: np.ndarray, traveler_breaks: List[int], origin: int = None) -> List[np.ndarray]:
     """
     Extract traveler routes based on traveler_breaks.
     If origin is not None then it will include the origin in the route extraction
@@ -77,7 +77,7 @@ class MinMaxFitnessCalculator(MTSPFitnessCalculator):
 
     def distance_fitness(self, individual: np.ndarray, traveler_breaks: List[int]) -> float:
         
-        routes = _extract_routes(individual, traveler_breaks)
+        routes = extract_routes(individual, traveler_breaks)
 
         routes_length = self._compute_route_legnth(routes)
         max_route_idx = np.argmax(routes_length)
@@ -91,7 +91,7 @@ class MinSumFitnessCalculator(MTSPFitnessCalculator):
         super().__init__(distance_matrix)
     
     def distance_fitness(self, individual: np.ndarray, traveler_breaks: List[int]) -> float:
-        routes = _extract_routes(individual, traveler_breaks)
+        routes = extract_routes(individual, traveler_breaks)
 
         min_sum = 0
         for rt in routes:
