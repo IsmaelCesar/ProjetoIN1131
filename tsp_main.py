@@ -26,17 +26,17 @@ def main():
     cidades_codigo, cidades, coordenadas_cidades = get_predefined_data()
     distance_matrix = cdist(coordenadas_cidades, coordenadas_cidades)
 
-    stsp = SingleTSP(n_gen=100)
+    stsp = SingleTSP(n_gen=1000)
 
     plot_cities(coordenadas_cidades, cidades_codigo, len(cidades))
 
     stsp.evolve(
         Initialization(num_cidades=len(cidades), pop_size=200),
-        SingleTravelerX(crossover_type="edge"),
-        SingleTravelerMut(mutation_type="inverse", probability=.8),
+        SingleTravelerX(crossover_type="cycle", probability=.8),
+        SingleTravelerMut(mutation_type="scramble", probability=.8),
         SelectIndividuals(),
         DistanceFitnessCalculator(distance_matrix),
-        STSPKElitism(k=3)
+        STSPKElitism()
     )
 
     best_individual = stsp.statistics["best_individual"][-1]

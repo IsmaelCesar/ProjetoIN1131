@@ -159,3 +159,4 @@ class MTSP:
             population, fitness = k_elitism.apply(population, fitness, new_population, new_fitness)
 
             self.save_statistics(population, fitness)
+
