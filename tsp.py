@@ -98,10 +98,26 @@ class SingleTSP:
 
 class MTSP:
 
-    def __init__(self, n_gen: int, origin: int, traveler_breaks: List[int]):
+    def __init__(self, n_gen: int, traveler_breaks: List[int]):
         self.n_gen = n_gen
         self.traveler_breaks = traveler_breaks
-    
+        self.statistics = {
+            "mean_fitness": [],
+            "std_fitness": [],
+            "best_overall": [],
+            "best_individual": [],
+            "best_fitness": [],
+        }
+
+    def save_statistics(self, individuals: np.ndarray, fitness: np.ndarray) -> None:
+
+        min_fitness_idx = fitness.argmin()
+        
+        self.statistics["best_individual"].append(individuals[min_fitness_idx].copy())
+        self.statistics["best_fitness"].append(fitness[min_fitness_idx])
+        self.statistics["mean_fitness"].append(fitness.mean())
+        self.statistics["std_fitness"].append(fitness.std())
+
     def evolve(self,
                pop_initializer: Initialization,
                crossover_op: SingleTravelerX,
@@ -114,6 +130,8 @@ class MTSP:
 
         population = pop_initializer.random()
         fitness = np.apply_along_axis(fitness_calculator.distance_fitness, 1, population, self.traveler_breaks)
+
+        self.save_statistics(population, fitness)
         #population, fitness = self.sort_fitness(population, fitness)
 
         for gen_idx in range(self.n_gen):

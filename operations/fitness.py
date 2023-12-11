@@ -54,9 +54,8 @@ class DistanceFitnessCalculator:
 
 class MTSPFitnessCalculator(ABC):
 
-    def __init__(self, distance_matrix: np.ndarray, origin: int):
+    def __init__(self, distance_matrix: np.ndarray):
         self.distance_matrix = distance_matrix
-        self.origin = origin
     
     @abstractmethod
     def distance_fitness(self, individual: np.ndarray, traveler_breaks: List[int]): 

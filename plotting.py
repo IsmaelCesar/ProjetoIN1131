@@ -56,3 +56,9 @@ def plot_cycle(coordenadas_cidades, ciclo, codigos_ciclo, filename: str = None):
     plt.show()
     plt.close()
     plt.clf()
+
+
+def _get_cycle_codigos(ciclo):
+
+def plot_mtsp_cycles(coordenadas_cidades, rotas, codigos_ciclo, filename: str = None):
+
