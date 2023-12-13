@@ -1,6 +1,42 @@
 import numpy as np
 from typing import Tuple, List
 
+def _scale_fitness(fitness: np.ndarray) -> np.ndarray:
+    # scales fitness values to they all sum up to one
+    return (fitness - fitness.min())/ (fitness.max() - fitness.min())
+
+
+def _apply_roulette_wheel(individuals: np.ndarray, fitness: np.ndarray , num_individuals: int )-> Tuple[List[np.ndarray], List[np.ndarray]]:
+    """
+    Effectivelly applies the roulette wheel algorithms
+    """
+    chosen = [None] * num_individuals
+    chosen_indices = []
+    parent_idx = 0
+    pool_range = list(range(len(individuals)))
+
+    while parent_idx < num_individuals:
+
+        random_prob = np.random.uniform(low=0, high=1)
+        #indiv_count = 0 
+        #while fitness[pool_range[indiv_count]] > random_prob: 
+        #    indiv_count += 1
+        chosen_pr = -1
+        for pr in pool_range:
+            if fitness[pr] < random_prob:
+                chosen_pr = pr
+                break
+        
+        chosen_pr = np.random.choice(pool_range) if chosen_pr == -1 else chosen_pr
+
+        chosen[parent_idx] = individuals[chosen_pr]
+        chosen_indices += [chosen_pr]
+        pool_range.remove(chosen_pr)
+
+        parent_idx += 1
+    
+    return chosen, chosen_indices
+
 class SelectIndividuals:
 
     def __init__(
@@ -14,14 +50,6 @@ class SelectIndividuals:
         self.num_individuals = num_individuals
         self.selection_type = selection_type
         self.scale_fitness = scale_fitness
-
-    def _scale_fitness(self, fitness: np.ndarray) -> np.ndarray:
-        if self.scale_fitness:
-            # scales fitness values to they all sum up to one
-            temp_fit = np.array([(f_i - fitness.min())/ (fitness.max() - fitness.min()) for f_i in fitness])
-        else: 
-            temp_fit = fitness
-        return temp_fit
 
     def random(self, individuals: np.ndarray) -> List[np.ndarray]:
         """
@@ -63,33 +91,23 @@ class SelectIndividuals:
         """
         Applies roulette wheel algorithm for selecting parents.
         """
-
-        parents = [None] * self.num_individuals
-        parent_idx = 0
-        pool_range = list(range(len(individuals)))
-
-        temp_fit = self._scale_fitness(fitness)
-
-        while parent_idx < len(parents):
-
-            random_prob = np.random.uniform(low=0, high=1)
-            indiv_count = 0 
-            while temp_fit[pool_range[indiv_count]] < random_prob: 
-                indiv_count += 1
-
-            parents[parent_idx] = individuals[parent_idx]
-            parent_idx += 1
-        
-        return parents
+        chosen_individuals, _ = _apply_roulette_wheel(individuals, fitness, self.num_individuals)
+        return chosen_individuals
+       
 
     def apply(self, individuals: np.ndarray, fitness: np.ndarray) -> List[np.ndarray]:
+
+        if self.scale_fitness: 
+            temp_fit = _scale_fitness(fitness)
+        else: 
+            temp_fit = fitness
 
         if self.selection_type == "random": 
             return self.random(individuals)
         elif self.selection_type == "tournament":
-            return self.tournament(individuals, fitness)
+            return self.tournament(individuals, temp_fit)
         elif self.selection_type == "roulette":
-            return self.roulette_wheel(individuals, fitness)
+            return self.roulette_wheel(individuals, temp_fit)
 
 class STSPKElitism:
     """
@@ -130,3 +148,40 @@ class STSPKElitism:
         updated_fit[self.k:] = new_fitness[rest_of_new]
 
         return updated_pop, updated_fit
+
+class FitnessProportional:
+
+    def __init__(self, pop_size: int, num_cidades: int):
+
+        self.pop_size = pop_size
+        self.num_cidades = num_cidades
+        self.num_individuals = pop_size //2
+
+    def apply(
+            self, 
+            old_population: np.ndarray,
+            old_fitness: np.ndarray, 
+            new_population: np.ndarray, 
+            new_fitness: np.ndarray) -> np.ndarray:
+        
+        scaled_old_fit = _scale_fitness(old_fitness)
+        scaled_new_fit = _scale_fitness(new_fitness)
+
+        survivors = np.zeros((self.pop_size, self.num_cidades), dtype=int) -1
+        survivors_fitness = np.zeros((self.pop_size,)) -1
+        
+        old_survivors, chosen_old_indices = _apply_roulette_wheel(old_population, scaled_old_fit, self.num_individuals)
+        old_survivors = np.array(old_survivors)
+        old_survivors_fitness = old_fitness[chosen_old_indices]
+        
+        survivors[:self.num_individuals] = old_survivors
+        survivors_fitness[:self.num_individuals] = old_survivors_fitness
+
+        new_survivors, chosen_new_indices =  _apply_roulette_wheel(new_population, scaled_new_fit, self.num_individuals)
+        new_survivors = np.array(new_survivors)
+        new_survivors_fitness = new_fitness[chosen_new_indices]
+
+        survivors[self.num_individuals:] = new_survivors
+        survivors_fitness[self.num_individuals:] = new_survivors_fitness
+
+        return survivors, survivors_fitness

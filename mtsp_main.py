@@ -4,7 +4,7 @@ from tsp import MTSP
 from operations.mutation import SingleTravelerMut
 from operations.crossover import SingleTravelerX
 from operations.initialization import Initialization
-from operations.selection import SelectIndividuals, STSPKElitism
+from operations.selection import SelectIndividuals, STSPKElitism, FitnessProportional
 from operations.fitness import MinSumFitnessCalculator, MinMaxFitnessCalculator, extract_routes
 from population import get_predefined_data
 from plotting import plot_cities, plot_mtsp_cycles, plot_objective_function
@@ -29,16 +29,17 @@ def min_sum(traveler_breaks: List[int]):
 
     plot_cities(coordenadas_cidades, cidades_codigo, len(cidades))
 
-    random_origin = 2 #np.random.randint(0, len(cidades))
+    random_origin = 12 #np.random.randint(0, len(cidades))
 
     mtsp = MTSP(n_gen=1000, traveler_breaks=traveler_breaks)
+    pop_size = 200
     mtsp.evolve(
-        pop_initializer=Initialization(num_cidades=len(cidades), pop_size=200, origin=random_origin),
+        pop_initializer=Initialization(num_cidades=len(cidades), pop_size=pop_size, origin=random_origin),
         crossover_op=SingleTravelerX(crossover_type="order", probability=.8),
-        mutation_op=SingleTravelerMut(mutation_type="scramble", probability=.8),
+        mutation_op=SingleTravelerMut(mutation_type="inverse", probability=.8),
         selection_op=SelectIndividuals(),
         fitness_calculator=MinSumFitnessCalculator(distance_matrix),
-        k_elitism=STSPKElitism()
+        survivor_selection= FitnessProportional(pop_size=pop_size, num_cidades=len(cidades) - 1)#STSPKElitism()
     )
 
     routes = extract_routes(
@@ -68,16 +69,17 @@ def min_max(traveler_breaks: List[int]):
 
     plot_cities(coordenadas_cidades, cidades_codigo, len(cidades))
 
-    random_origin = 2 #np.random.randint(0, len(cidades))
+    random_origin = 12 #np.random.randint(0, len(cidades))
+    pop_size = 150
 
     mtsp = MTSP(n_gen=1000, traveler_breaks=traveler_breaks)
     mtsp.evolve(
-        pop_initializer=Initialization(num_cidades=len(cidades), pop_size=200, origin=random_origin),
-        crossover_op=SingleTravelerX(crossover_type="order", probability=.8),
-        mutation_op=SingleTravelerMut(mutation_type="scramble", probability=.8),
+        pop_initializer=Initialization(num_cidades=len(cidades), pop_size=pop_size, origin=random_origin),
+        crossover_op=SingleTravelerX(crossover_type="cycle", probability=.8),
+        mutation_op=SingleTravelerMut(mutation_type="inverse", probability=.8),
         selection_op=SelectIndividuals(),
         fitness_calculator=MinMaxFitnessCalculator(distance_matrix),
-        k_elitism=STSPKElitism()
+        survivor_selection=FitnessProportional(pop_size=pop_size, num_cidades=len(cidades) - 1)#STSPKElitism(k=3)
     )
 
     routes = extract_routes(

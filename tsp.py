@@ -124,7 +124,7 @@ class MTSP:
                mutation_op: SingleTravelerMut, 
                selection_op: SelectIndividuals,
                fitness_calculator: MTSPFitnessCalculator,
-               k_elitism: STSPKElitism):
+               survivor_selection: STSPKElitism):
 
         pop_size = pop_initializer.pop_size
 
@@ -156,7 +156,7 @@ class MTSP:
             # sorting by fitness
             #new_population, new_fitness = self.sort_fitness(new_population, new_fitness)
 
-            population, fitness = k_elitism.apply(population, fitness, new_population, new_fitness)
+            population, fitness = survivor_selection.apply(population, fitness, new_population, new_fitness)
 
             self.save_statistics(population, fitness)
 
