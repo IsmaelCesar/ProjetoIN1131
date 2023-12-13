@@ -34,7 +34,7 @@ def plot_objective_function(average, best, filename: str = None):
 
 
 def plot_cycle(coordenadas_cidades, ciclo, codigos_ciclo, filename: str = None):
-    fig = plt.figure(figsize=(6,6))
+    fig = plt.figure(figsize=(12, 12), dpi=300)
     ax = fig.add_subplot(1, 1, 1, aspect=1)
     for ciclo_value in ciclo:
         ax.text(

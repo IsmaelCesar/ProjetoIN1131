@@ -1,6 +1,7 @@
 
 import numpy as np
 from typing import Tuple, List
+import pandas as pd
 
 def get_predefined_data() -> Tuple[List[str], List[int], np.ndarray]:
     """
@@ -28,6 +29,13 @@ def get_predefined_data() -> Tuple[List[str], List[int], np.ndarray]:
     
     return cidades_codigo, cidades, coordenadas_cidades
 
+def get_data_escolas():
+  escolas = pd.read_csv("real/LatLongEscolasCageData.csv").dropna()
+
+  escolas_id = escolas[["idEscola"]].to_numpy().reshape(-1).tolist()
+  escolas_codigos = escolas[["Escola"]].to_numpy().reshape(-1).tolist()
+  coordenadas_escolas = escolas[["Latitude", "Longitude"]].to_numpy()
+  return escolas_codigos, escolas_id, coordenadas_escolas
 
 #Gero aleatoriamente uma população inicial#
 def Initialization(cidades, pop = 100):
