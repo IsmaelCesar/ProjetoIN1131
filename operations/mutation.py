@@ -60,7 +60,10 @@ def _apply_insert(individual: np.ndarray) -> np.ndarray:
 class SingleTravelerMut:
 
     def __init__(self, probability: float = 0.5, mutation_type: str = "swap"):
-        assert mutation_type in ["swap", "scramble", "inverse", "insert"]
+        
+        self.mutation_optioins = ["swap", "scramble", "inverse", "insert"]
+
+        assert mutation_type in self.mutation_optioins
 
         self.probability = probability
         self.mutation_type = mutation_type

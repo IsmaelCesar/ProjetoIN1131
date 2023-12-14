@@ -98,9 +98,26 @@ class SingleTSP:
 
 class MTSP:
 
-    def __init__(self, n_gen: int, traveler_breaks: List[int]):
+    def __init__(self, n_gen: int, traveler_breaks: List[int], combine_multiple_x: bool=False, combine_multiple_mut: bool = False):
+        """
+        Genetic algorithm for the Multi Traveling Salesmen problem.
+
+        Parameters:
+        -----------
+        n_gen: int the total number of gneerations
+        traveler_breaks: List[int] tell wich segment belongs to which traveler
+        combine_multiple_x: bool Tell the algorithm whether or not to probabilistcally choose among the multiple
+                                 crossover operations
+        combine_multiple_mut: bool Tell the algorithm whether or not to probabilistcally choose among the multiple
+                                   mutations operations
+
+        """
+
         self.n_gen = n_gen
         self.traveler_breaks = traveler_breaks
+        self.combine_multiple_x = combine_multiple_x
+        self.combine_multiple_mut = combine_multiple_mut
+
         self.statistics = {
             "mean_fitness": [],
             "std_fitness": [],
@@ -117,6 +134,20 @@ class MTSP:
         self.statistics["best_fitness"].append(fitness[min_fitness_idx])
         self.statistics["mean_fitness"].append(fitness.mean())
         self.statistics["std_fitness"].append(fitness.std())
+
+    def _monitor_crossover_operations(self, crossover_op: SingleTravelerX, parent1:np.ndarray, parent2: np.ndarray ) -> Tuple[np.ndarray, np.ndarray]:
+        if self.combine_multiple_x:
+            print("probabilistically choosing one of the multiple mutations")
+        
+        return crossover_op.apply(parent1, parent2)
+
+
+    def _monitor_mutation_operations(self, mutation_op: SingleTravelerMut, child: np.ndarray) -> np.ndarray:
+        
+        if self.combine_multiple_mut:
+            print("Probabilistically chosing one of the multiple mutations")
+        
+        return mutation_op.apply(child)
 
     def evolve(self,
                pop_initializer: Initialization,
