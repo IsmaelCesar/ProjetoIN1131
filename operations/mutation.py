@@ -61,7 +61,7 @@ class SingleTravelerMut:
 
     def __init__(self, probability: float = 0.5, mutation_type: str = "swap"):
         
-        self.mutation_optioins = ["swap", "scramble", "inverse", "insert"]
+        self.mutation_optioins = ["scramble", "inverse", "insert", "swap"]
 
         assert mutation_type in self.mutation_optioins
 

@@ -137,9 +137,30 @@ class MTSP:
         self.statistics["mean_fitness"].append(fitness.mean())
         self.statistics["std_fitness"].append(fitness.std())
 
+    
+    def _choose_from_options(self, operation_options: List[str], operation_probs: np.ndarray) -> str:
+        rand_prob = np.random.rand()
+        chosen_operation = None
+
+        for operation_option, operation_prob in zip(operation_options, operation_probs):
+            if operation_prob >= rand_prob:
+                chosen_operation = operation_option
+                break
+            
+        # checks if the variable chosen_operation is still None
+        chosen_operation = np.random.choice(operation_options) if not chosen_operation else chosen_operation
+
+        return chosen_operation
+
+
     def _crossover_operations_combinator(self, crossover_op: SingleTravelerX, parent_1:np.ndarray, parent_2: np.ndarray ) -> Tuple[np.ndarray, np.ndarray]:
         if self.combine_multiple_x:
-            print("probabilistically choosing one of the multiple mutations")
+
+            chosen_operation = self._choose_from_options(crossover_op.crossover_options, self._crossover_op_probs)
+            
+            crossover_op.crossover_type = chosen_operation
+
+            return crossover_op.apply(parent_1, parent_2)
         
         return crossover_op.apply(parent_1, parent_2)
 
@@ -147,7 +168,12 @@ class MTSP:
     def _mutation_operations_combinator(self, mutation_op: SingleTravelerMut, child: np.ndarray) -> np.ndarray:
         
         if self.combine_multiple_mut:
-            print("Probabilistically chosing one of the multiple mutations")
+            
+            chosen_operation = self._choose_from_options(mutation_op.mutation_optioins, self._mutation_op_probs)
+
+            mutation_op.mutation_type = chosen_operation
+
+            return mutation_op.apply(child)
         
         return mutation_op.apply(child)
     
@@ -190,21 +216,21 @@ class MTSP:
         #population, fitness = self.sort_fitness(population, fitness)
 
         for gen_idx in range(self.n_gen):
-            
-            best_overall = self.statistics["best_fitness"][-1]
-            logger.info(f"Generation {gen_idx}, Best overall solution: {best_overall}")
 
             self._compute_per_operation_prob(
                     population, 
                     list(range(len(crossover_op.crossover_options))),
                     list(range(len(mutation_op.mutation_optioins))))
+            
+            best_overall = self.statistics["best_fitness"][-1]
+            logger.info(f"Generation {gen_idx}, Best overall solution: {best_overall}")
 
             new_population = []
 
             # new population creation
             for _ in range(0, pop_size // 2):
                 parent_1, parent_2 = selection_op.apply(population, fitness)
-                child_1, child_2 = self._crossover_operations_combinator(crossover_op, parent_2, parent_2)
+                child_1, child_2 = self._crossover_operations_combinator(crossover_op, parent_1, parent_2)
                 mchild_1 = self._mutation_operations_combinator(mutation_op, child_1)
                 mchild_2 = self._mutation_operations_combinator(mutation_op, child_2)
                 new_population += [mchild_1, mchild_2]

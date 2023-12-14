@@ -65,18 +65,19 @@ def min_sum(traveler_breaks: List[int]):
     
 def min_max(traveler_breaks: List[int]):
 
-    escolas_codigo, escolas_id, coordenadas_escolas = get_data_escolas()
+    #escolas_codigo, escolas_id, coordenadas_escolas = get_data_escolas()
+    escolas_codigo, escolas_id, coordenadas_escolas = get_predefined_data()
     distance_matrix = cdist(coordenadas_escolas, coordenadas_escolas, metric="euclidean")
 
-    plot_cities(coordenadas_escolas, escolas_id, len(escolas_id))
+    #plot_cities(coordenadas_escolas, escolas_id, len(escolas_id))
 
     random_origin = np.random.randint(0, len(escolas_id))
 
-    mtsp = MTSP(n_gen=500, traveler_breaks=traveler_breaks)
+    mtsp = MTSP(n_gen=1000, traveler_breaks=traveler_breaks, combine_multiple_x=True, combine_multiple_mut=True)
     pop_size = 18
     mtsp.evolve(
         pop_initializer=Initialization(num_cidades=len(escolas_id), pop_size=pop_size, origin=random_origin),
-        crossover_op=SingleTravelerX(crossover_type="order", probability=1.),
+        crossover_op=SingleTravelerX(crossover_type="edge", probability=1.),
         mutation_op=SingleTravelerMut(mutation_type="insert", probability=1.),
         selection_op=SelectIndividuals(),
         fitness_calculator=MinMaxFitnessCalculator(distance_matrix),
@@ -109,7 +110,7 @@ if __name__ == "__main__":
     init = 0
     traveler_breaks = []
     n_travelers = 2
-    n_total = 384
+    n_total = 14
     for _ in range(n_travelers):
         init += n_total//n_travelers
         traveler_breaks += [init]
@@ -117,6 +118,6 @@ if __name__ == "__main__":
     traveler_breaks[-1] -= 1
     print(traveler_breaks)
 
-    #traveler_breaks = [4, 8, 13]
+    traveler_breaks = [4, 8, 13]
     #min_sum(traveler_breaks)
     min_max(traveler_breaks)
