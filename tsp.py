@@ -6,6 +6,8 @@ from operations.initialization import Initialization
 from operations.selection import SelectIndividuals, STSPKElitism
 from operations.fitness import DistanceFitnessCalculator, MTSPFitnessCalculator
 from typing import Tuple, List
+from scipy.spatial.distance import cdist
+from scipy.stats import norm
 
 logger = logging.getLogger("main.tsp_ga")
 
@@ -135,11 +137,11 @@ class MTSP:
         self.statistics["mean_fitness"].append(fitness.mean())
         self.statistics["std_fitness"].append(fitness.std())
 
-    def _monitor_crossover_operations(self, crossover_op: SingleTravelerX, parent1:np.ndarray, parent2: np.ndarray ) -> Tuple[np.ndarray, np.ndarray]:
+    def _monitor_crossover_operations(self, crossover_op: SingleTravelerX, parent_1:np.ndarray, parent_2: np.ndarray ) -> Tuple[np.ndarray, np.ndarray]:
         if self.combine_multiple_x:
             print("probabilistically choosing one of the multiple mutations")
         
-        return crossover_op.apply(parent1, parent2)
+        return crossover_op.apply(parent_1, parent_2)
 
 
     def _monitor_mutation_operations(self, mutation_op: SingleTravelerMut, child: np.ndarray) -> np.ndarray:
@@ -148,6 +150,28 @@ class MTSP:
             print("Probabilistically chosing one of the multiple mutations")
         
         return mutation_op.apply(child)
+    
+    def _scale_op_indices(self, op_indices: np.ndarray) -> np.ndarray:
+        """
+        Rescales the operation indices so each of the elements are between 0 and 1
+        """
+        return (op_indices - op_indices.min()) / (op_indices.max() - op_indices.min())
+    
+    def _compute_per_operation_prob(self, population: np.ndarray, op_x_indices: List[int], op_mut_indices: List[int]) -> None:
+
+        if self.combine_multiple_x or self.combine_multiple_mut:
+            hamming_d_matrix = cdist(population, population, metric="hamming")
+            
+            up_diag = hamming_d_matrix[np.triu_indices(hamming_d_matrix.shape[0])]
+            
+            hamming_d_mean = up_diag.mean()
+            hamming_d_std = up_diag.std()
+
+            scaled_indices_x = self._scale_op_indices(np.array(op_x_indices))
+            scaled_indices_mut = self._scale_op_indices(np.array(op_mut_indices))
+
+            self._crossover_op_probs = norm.pdf(scaled_indices_x, loc=hamming_d_mean, scale=hamming_d_std)
+            self._mutation_op_probs = norm.pdf(scaled_indices_mut, loc=hamming_d_mean, scale=hamming_d_std)
 
     def evolve(self,
                pop_initializer: Initialization,
@@ -170,14 +194,19 @@ class MTSP:
             best_overall = self.statistics["best_fitness"][-1]
             logger.info(f"Generation {gen_idx}, Best overall solution: {best_overall}")
 
+            self._compute_per_operation_prob(
+                    population, 
+                    list(range(len(crossover_op.crossover_options))),
+                    list(range(len(mutation_op.mutation_optioins))))
+
             new_population = []
 
             # new population creation
             for _ in range(0, pop_size // 2):
                 parent_1, parent_2 = selection_op.apply(population, fitness)
-                child_1, child_2 = crossover_op.apply(parent_1, parent_2)
-                mchild_1 = mutation_op.apply(child_1)
-                mchild_2 = mutation_op.apply(child_2)
+                child_1, child_2 = self._monitor_crossover_operations(crossover_op, parent_2, parent_2)
+                mchild_1 = self._monitor_mutation_operations(mutation_op, child_1)
+                mchild_2 = self._monitor_mutation_operations(mutation_op, child_2)
                 new_population += [mchild_1, mchild_2]
 
             # computing new fitness

@@ -72,7 +72,7 @@ def min_max(traveler_breaks: List[int]):
 
     random_origin = np.random.randint(0, len(escolas_id))
 
-    mtsp = MTSP(n_gen=1000, traveler_breaks=traveler_breaks)
+    mtsp = MTSP(n_gen=500, traveler_breaks=traveler_breaks)
     pop_size = 18
     mtsp.evolve(
         pop_initializer=Initialization(num_cidades=len(escolas_id), pop_size=pop_size, origin=random_origin),
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     #[1,1,1,1,1,2,2,2,2]
     init = 0
     traveler_breaks = []
-    n_travelers = 6
+    n_travelers = 2
     n_total = 384
     for _ in range(n_travelers):
         init += n_total//n_travelers
