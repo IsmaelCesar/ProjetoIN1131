@@ -31,8 +31,8 @@ def min_sum(traveler_breaks: List[int]):
 
     random_origin = 12 #np.random.randint(0, len(cidades))
 
-    mtsp = MTSP(n_gen=1000, traveler_breaks=traveler_breaks)
-    pop_size = 18
+    mtsp = MTSP(n_gen=1000, traveler_breaks=traveler_breaks, combine_multiple_x=True, combine_multiple_mut=True)
+    pop_size = 14
     mtsp.evolve(
         pop_initializer=Initialization(num_cidades=len(escolas_id), pop_size=pop_size, origin=random_origin),
         crossover_op=SingleTravelerX(crossover_type="order", probability=.8),
@@ -54,7 +54,9 @@ def min_sum(traveler_breaks: List[int]):
     logger.info(f"Best individual: {best_individual}")
     logger.info(f"Best individual fitness: {best_fitness}")
     logger.info(f"Traveler routes: \n{routes}")
-    
+    logger.info(f"Crossover Operation Counts: \n {mtsp._x_op_counts}")
+    logger.info(f"Mutation Operation Counts: \n {mtsp._mut_op_counts}")
+
     plot_mtsp_cycles(
         coordenadas_cidades=coordenadas_escolas,
         rotas=routes, 
@@ -65,8 +67,8 @@ def min_sum(traveler_breaks: List[int]):
     
 def min_max(traveler_breaks: List[int]):
 
-    #escolas_codigo, escolas_id, coordenadas_escolas = get_data_escolas()
-    escolas_codigo, escolas_id, coordenadas_escolas = get_predefined_data()
+    escolas_codigo, escolas_id, coordenadas_escolas = get_data_escolas()
+    #escolas_codigo, escolas_id, coordenadas_escolas = get_predefined_data()
     distance_matrix = cdist(coordenadas_escolas, coordenadas_escolas, metric="euclidean")
 
     #plot_cities(coordenadas_escolas, escolas_id, len(escolas_id))
@@ -74,11 +76,11 @@ def min_max(traveler_breaks: List[int]):
     random_origin = np.random.randint(0, len(escolas_id))
 
     mtsp = MTSP(n_gen=1000, traveler_breaks=traveler_breaks, combine_multiple_x=True, combine_multiple_mut=True)
-    pop_size = 20
+    pop_size = 24
     mtsp.evolve(
         pop_initializer=Initialization(num_cidades=len(escolas_id), pop_size=pop_size, origin=random_origin),
-        crossover_op=SingleTravelerX(crossover_type="edge", probability=.8),
-        mutation_op=SingleTravelerMut(mutation_type="insert", probability=.8),
+        crossover_op=SingleTravelerX(crossover_type="edge", probability=.5),
+        mutation_op=SingleTravelerMut(mutation_type="insert", probability=.3),
         selection_op=SelectIndividuals(),
         fitness_calculator=MinMaxFitnessCalculator(distance_matrix),
         #survivor_selection= STSPKElitism()#FitnessProportional(pop_size=pop_size, num_cidades=len(escolas_id) - 1)
@@ -96,7 +98,9 @@ def min_max(traveler_breaks: List[int]):
     logger.info(f"Best individual: {best_individual}")
     logger.info(f"Best individual fitness: {best_fitness}")
     logger.info(f"Traveler routes: \n{routes}")
-    
+    logger.info(f"Crossover Operation Counts: \n {mtsp._x_op_counts}")
+    logger.info(f"Mutation Operation Counts: \n {mtsp._mut_op_counts}")
+
     plot_mtsp_cycles(
         coordenadas_cidades=coordenadas_escolas,
         rotas=routes, 
@@ -110,14 +114,14 @@ if __name__ == "__main__":
     init = 0
     traveler_breaks = []
     n_travelers = 2
-    n_total = 14
+    n_total = 384
     for _ in range(n_travelers):
         init += n_total//n_travelers
         traveler_breaks += [init]
 
     traveler_breaks[-1] -= 1
-    print(traveler_breaks)
+    #print(traveler_breaks)
 
-    traveler_breaks = [4, 8, 13]
-    #min_sum(traveler_breaks)
+    #traveler_breaks = [4, 8, 13]
+    min_sum(traveler_breaks)
     min_max(traveler_breaks)

@@ -137,9 +137,16 @@ class MTSP:
         self.statistics["mean_fitness"].append(fitness.mean())
         self.statistics["std_fitness"].append(fitness.std())
 
+    def _initialize_operation_counts(self, x_operation_options: List[str], mut_operation_options: List[str]):
+        x_conts = [0] * len(x_operation_options)
+        mut_counts = [0]*len(mut_operation_options)
+
+        self._x_op_counts  = dict(zip(x_operation_options, x_conts))
+        self._mut_op_counts = dict(zip(mut_operation_options, mut_counts))
     
     def _choose_from_options(self, operation_options: List[str], operation_probs: np.ndarray) -> str:
-        rand_prob = np.random.rand()
+        #rand_prob = np.random.rand()
+        rand_prob = np.random.uniform(low=0., high=1.)
         chosen_operation = None
 
         for operation_option, operation_prob in zip(operation_options, operation_probs):
@@ -157,6 +164,8 @@ class MTSP:
         if self.combine_multiple_x:
 
             chosen_operation = self._choose_from_options(crossover_op.crossover_options, self._crossover_op_probs)
+
+            self._x_op_counts[chosen_operation] += 1
             
             crossover_op.crossover_type = chosen_operation
 
@@ -170,6 +179,8 @@ class MTSP:
         if self.combine_multiple_mut:
             
             chosen_operation = self._choose_from_options(mutation_op.mutation_optioins, self._mutation_op_probs)
+
+            self._mut_op_counts[chosen_operation] += 1
 
             mutation_op.mutation_type = chosen_operation
 
@@ -208,6 +219,8 @@ class MTSP:
                survivor_selection: STSPKElitism):
 
         pop_size = pop_initializer.pop_size
+
+        self._initialize_operation_counts(crossover_op.crossover_options, mutation_op.mutation_optioins)
 
         population = pop_initializer.random()
         fitness = np.apply_along_axis(fitness_calculator.distance_fitness, 1, population, self.traveler_breaks)
