@@ -6,6 +6,8 @@ from operations.initialization import Initialization
 from operations.selection import SelectIndividuals, STSPKElitism
 from operations.fitness import DistanceFitnessCalculator, MTSPFitnessCalculator
 from typing import Tuple, List
+from scipy.spatial.distance import cdist
+from scipy.stats import norm
 
 logger = logging.getLogger("main.tsp_ga")
 
@@ -98,9 +100,26 @@ class SingleTSP:
 
 class MTSP:
 
-    def __init__(self, n_gen: int, traveler_breaks: List[int]):
+    def __init__(self, n_gen: int, traveler_breaks: List[int], combine_multiple_x: bool=False, combine_multiple_mut: bool = False):
+        """
+        Genetic algorithm for the Multi Traveling Salesmen problem.
+
+        Parameters:
+        -----------
+        n_gen: int the total number of gneerations
+        traveler_breaks: List[int] tell wich segment belongs to which traveler
+        combine_multiple_x: bool Tell the algorithm whether or not to probabilistcally choose among the multiple
+                                 crossover operations
+        combine_multiple_mut: bool Tell the algorithm whether or not to probabilistcally choose among the multiple
+                                   mutations operations
+
+        """
+
         self.n_gen = n_gen
         self.traveler_breaks = traveler_breaks
+        self.combine_multiple_x = combine_multiple_x
+        self.combine_multiple_mut = combine_multiple_mut
+
         self.statistics = {
             "mean_fitness": [],
             "std_fitness": [],
@@ -118,6 +137,83 @@ class MTSP:
         self.statistics["mean_fitness"].append(fitness.mean())
         self.statistics["std_fitness"].append(fitness.std())
 
+    def _initialize_operation_counts(self, x_operation_options: List[str], mut_operation_options: List[str]):
+        x_conts = [0] * len(x_operation_options)
+        mut_counts = [0]*len(mut_operation_options)
+
+        self._x_op_counts  = dict(zip(x_operation_options, x_conts))
+        self._mut_op_counts = dict(zip(mut_operation_options, mut_counts))
+    
+    def _choose_from_options(self, operation_options: List[str], operation_probs: np.ndarray) -> str:
+        #rand_prob = np.random.rand()
+        rand_prob = np.random.uniform(low=0., high=1.)
+        chosen_operation = None
+
+        for operation_option, operation_prob in zip(operation_options, operation_probs):
+            if operation_prob >= rand_prob:
+                chosen_operation = operation_option
+                break
+            
+        # checks if the variable chosen_operation is still None
+        chosen_operation = np.random.choice(operation_options) if not chosen_operation else chosen_operation
+
+        return chosen_operation
+
+
+    def _crossover_operations_combinator(self, crossover_op: SingleTravelerX, parent_1:np.ndarray, parent_2: np.ndarray ) -> Tuple[np.ndarray, np.ndarray]:
+        if self.combine_multiple_x:
+
+            chosen_operation = self._choose_from_options(crossover_op.crossover_options, self._crossover_op_probs)
+
+            self._x_op_counts[chosen_operation] += 1
+            
+            crossover_op.crossover_type = chosen_operation
+
+            return crossover_op.apply(parent_1, parent_2)
+        
+        self._x_op_counts[crossover_op.crossover_type] += 1
+
+        return crossover_op.apply(parent_1, parent_2)
+
+
+    def _mutation_operations_combinator(self, mutation_op: SingleTravelerMut, child: np.ndarray) -> np.ndarray:
+        
+        if self.combine_multiple_mut:
+            
+            chosen_operation = self._choose_from_options(mutation_op.mutation_optioins, self._mutation_op_probs)
+
+            self._mut_op_counts[chosen_operation] += 1
+
+            mutation_op.mutation_type = chosen_operation
+
+            return mutation_op.apply(child)
+        
+        self._mut_op_counts[mutation_op.mutation_type] += 1
+
+        return mutation_op.apply(child)
+    
+    def _scale_op_indices(self, op_indices: np.ndarray) -> np.ndarray:
+        """
+        Rescales the operation indices so each of the elements are between 0 and 1
+        """
+        return (op_indices - op_indices.min()) / (op_indices.max() - op_indices.min())
+    
+    def _compute_per_operation_prob(self, population: np.ndarray, op_x_indices: List[int], op_mut_indices: List[int]) -> None:
+
+        if self.combine_multiple_x or self.combine_multiple_mut:
+            hamming_d_matrix = cdist(population, population, metric="hamming")
+            
+            up_diag = hamming_d_matrix[np.triu_indices(hamming_d_matrix.shape[0])]
+            
+            hamming_d_mean = up_diag.mean()
+            hamming_d_std = up_diag.std()
+
+            scaled_indices_x = self._scale_op_indices(np.array(op_x_indices))
+            scaled_indices_mut = self._scale_op_indices(np.array(op_mut_indices))
+
+            self._crossover_op_probs = norm.pdf(scaled_indices_x, loc=hamming_d_mean, scale=hamming_d_std)
+            self._mutation_op_probs = norm.pdf(scaled_indices_mut, loc=hamming_d_mean, scale=hamming_d_std)
+
     def evolve(self,
                pop_initializer: Initialization,
                crossover_op: SingleTravelerX,
@@ -128,6 +224,8 @@ class MTSP:
 
         pop_size = pop_initializer.pop_size
 
+        self._initialize_operation_counts(crossover_op.crossover_options, mutation_op.mutation_optioins)
+
         population = pop_initializer.random()
         fitness = np.apply_along_axis(fitness_calculator.distance_fitness, 1, population, self.traveler_breaks)
 
@@ -135,6 +233,11 @@ class MTSP:
         #population, fitness = self.sort_fitness(population, fitness)
 
         for gen_idx in range(self.n_gen):
+
+            self._compute_per_operation_prob(
+                    population, 
+                    list(range(len(crossover_op.crossover_options))),
+                    list(range(len(mutation_op.mutation_optioins))))
             
             best_overall = self.statistics["best_fitness"][-1]
             logger.info(f"Generation {gen_idx}, Best overall solution: {best_overall}")
@@ -144,9 +247,9 @@ class MTSP:
             # new population creation
             for _ in range(0, pop_size // 2):
                 parent_1, parent_2 = selection_op.apply(population, fitness)
-                child_1, child_2 = crossover_op.apply(parent_1, parent_2)
-                mchild_1 = mutation_op.apply(child_1)
-                mchild_2 = mutation_op.apply(child_2)
+                child_1, child_2 = self._crossover_operations_combinator(crossover_op, parent_1, parent_2)
+                mchild_1 = self._mutation_operations_combinator(mutation_op, child_1)
+                mchild_2 = self._mutation_operations_combinator(mutation_op, child_2)
                 new_population += [mchild_1, mchild_2]
 
             # computing new fitness
