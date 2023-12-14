@@ -233,7 +233,7 @@ def _construct_child_edge_x(parent1: np.ndarray, parent2: np.ndarray) -> np.ndar
     edge_table = _construct_edge_table(parent1, parent2)
     child = np.zeros(len(parent1), dtype=int) -1
 
-    current_item = np.random.randint(len(parent1))
+    current_item = np.random.choice(list(edge_table.keys()))
     
     for child_idx in range(len(child)): 
         child[child_idx] = current_item

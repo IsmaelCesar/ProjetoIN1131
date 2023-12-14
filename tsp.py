@@ -137,14 +137,14 @@ class MTSP:
         self.statistics["mean_fitness"].append(fitness.mean())
         self.statistics["std_fitness"].append(fitness.std())
 
-    def _monitor_crossover_operations(self, crossover_op: SingleTravelerX, parent_1:np.ndarray, parent_2: np.ndarray ) -> Tuple[np.ndarray, np.ndarray]:
+    def _crossover_operations_combinator(self, crossover_op: SingleTravelerX, parent_1:np.ndarray, parent_2: np.ndarray ) -> Tuple[np.ndarray, np.ndarray]:
         if self.combine_multiple_x:
             print("probabilistically choosing one of the multiple mutations")
         
         return crossover_op.apply(parent_1, parent_2)
 
 
-    def _monitor_mutation_operations(self, mutation_op: SingleTravelerMut, child: np.ndarray) -> np.ndarray:
+    def _mutation_operations_combinator(self, mutation_op: SingleTravelerMut, child: np.ndarray) -> np.ndarray:
         
         if self.combine_multiple_mut:
             print("Probabilistically chosing one of the multiple mutations")
@@ -204,9 +204,9 @@ class MTSP:
             # new population creation
             for _ in range(0, pop_size // 2):
                 parent_1, parent_2 = selection_op.apply(population, fitness)
-                child_1, child_2 = self._monitor_crossover_operations(crossover_op, parent_2, parent_2)
-                mchild_1 = self._monitor_mutation_operations(mutation_op, child_1)
-                mchild_2 = self._monitor_mutation_operations(mutation_op, child_2)
+                child_1, child_2 = self._crossover_operations_combinator(crossover_op, parent_2, parent_2)
+                mchild_1 = self._mutation_operations_combinator(mutation_op, child_1)
+                mchild_2 = self._mutation_operations_combinator(mutation_op, child_2)
                 new_population += [mchild_1, mchild_2]
 
             # computing new fitness
