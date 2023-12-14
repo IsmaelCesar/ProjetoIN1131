@@ -25,13 +25,14 @@ logger.addHandler(stream_handler)
 def min_sum(traveler_breaks: List[int]):
 
     escolas_codigo,escolas_id, coordenadas_escolas = get_data_escolas()
+    #escolas_codigo, escolas_id, coordenadas_escolas = get_predefined_data()
     distance_matrix = cdist(coordenadas_escolas, coordenadas_escolas, metric="euclidean")
 
     plot_cities(coordenadas_escolas, escolas_id, len(escolas_id))
 
-    random_origin = 12 #np.random.randint(0, len(cidades))
+    random_origin = 280 #np.random.randint(0, len(cidades))
 
-    mtsp = MTSP(n_gen=1000, traveler_breaks=traveler_breaks, combine_multiple_x=True, combine_multiple_mut=True)
+    mtsp = MTSP(n_gen=500, traveler_breaks=traveler_breaks, combine_multiple_x=False, combine_multiple_mut=False)
     pop_size = 14
     mtsp.evolve(
         pop_initializer=Initialization(num_cidades=len(escolas_id), pop_size=pop_size, origin=random_origin),
@@ -124,4 +125,4 @@ if __name__ == "__main__":
 
     #traveler_breaks = [4, 8, 13]
     min_sum(traveler_breaks)
-    min_max(traveler_breaks)
+    #min_max(traveler_breaks)

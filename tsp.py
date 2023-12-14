@@ -171,6 +171,8 @@ class MTSP:
 
             return crossover_op.apply(parent_1, parent_2)
         
+        self._x_op_counts[crossover_op.crossover_type] += 1
+
         return crossover_op.apply(parent_1, parent_2)
 
 
@@ -186,6 +188,8 @@ class MTSP:
 
             return mutation_op.apply(child)
         
+        self._mut_op_counts[mutation_op.mutation_type] += 1
+
         return mutation_op.apply(child)
     
     def _scale_op_indices(self, op_indices: np.ndarray) -> np.ndarray:
