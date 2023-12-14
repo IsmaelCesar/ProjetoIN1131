@@ -74,11 +74,11 @@ def min_max(traveler_breaks: List[int]):
     random_origin = np.random.randint(0, len(escolas_id))
 
     mtsp = MTSP(n_gen=1000, traveler_breaks=traveler_breaks, combine_multiple_x=True, combine_multiple_mut=True)
-    pop_size = 18
+    pop_size = 20
     mtsp.evolve(
         pop_initializer=Initialization(num_cidades=len(escolas_id), pop_size=pop_size, origin=random_origin),
-        crossover_op=SingleTravelerX(crossover_type="edge", probability=1.),
-        mutation_op=SingleTravelerMut(mutation_type="insert", probability=1.),
+        crossover_op=SingleTravelerX(crossover_type="edge", probability=.8),
+        mutation_op=SingleTravelerMut(mutation_type="insert", probability=.8),
         selection_op=SelectIndividuals(),
         fitness_calculator=MinMaxFitnessCalculator(distance_matrix),
         #survivor_selection= STSPKElitism()#FitnessProportional(pop_size=pop_size, num_cidades=len(escolas_id) - 1)

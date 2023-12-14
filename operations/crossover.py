@@ -257,7 +257,7 @@ def _apply_edge_x(parent1: np.ndarray, parent2: np.ndarray) -> Tuple[np.ndarray,
 class SingleTravelerX:
 
     def __init__(self, probability: float = 0.5, crossover_type: str = "order"):
-        self.crossover_options = ["order", "edge", "pmx", "cycle"]
+        self.crossover_options = ["order", "cycle", "edge", "pmx"]
 
         assert crossover_type in self.crossover_options
 
