@@ -13,13 +13,12 @@ from typing import List
 from scipy.spatial.distance import cdist
 
 
-logger = logging.getLogger("tsp_ga")
+logger = logging.getLogger("tsp."+__name__)
 
 # >> setting up logging >>>>>
-stream_handler = logging.StreamHandler()
-
-logger.setLevel(logging.INFO)
-logger.addHandler(stream_handler)
+#stream_handler = logging.StreamHandler()
+#logger.setLevel(logging.INFO)
+#logger.addHandler(stream_handler)
 #>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 def min_sum(traveler_breaks: List[int]):
@@ -30,9 +29,9 @@ def min_sum(traveler_breaks: List[int]):
 
     plot_cities(coordenadas_escolas, escolas_id, len(escolas_id))
 
-    random_origin = 280 #np.random.randint(0, len(cidades))
+    random_origin = np.random.randint(0, len(escolas_id))
 
-    mtsp = MTSP(n_gen=500, traveler_breaks=traveler_breaks, combine_multiple_x=False, combine_multiple_mut=False)
+    mtsp = MTSP(n_gen=500, traveler_breaks=traveler_breaks, combine_multiple_x=True, combine_multiple_mut=False)
     pop_size = 14
     mtsp.evolve(
         pop_initializer=Initialization(num_cidades=len(escolas_id), pop_size=pop_size, origin=random_origin),

@@ -9,7 +9,7 @@ from typing import Tuple, List
 from scipy.spatial.distance import cdist
 from scipy.stats import norm
 
-logger = logging.getLogger("main.tsp_ga")
+logger = logging.getLogger(__name__)
 
 # >> setting up logging >>>>>
 stream_handler = logging.StreamHandler()

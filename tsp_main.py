@@ -11,17 +11,9 @@ from plotting import plot_cities, plot_cycle, plot_objective_function
 from utils import compute_cycle
 from scipy.spatial.distance import cdist
 
-logger = logging.getLogger("tsp_ga")
+logger = logging.getLogger("tsp."+__name__)
 
 def main():
-
-    # >> setting up logging >>>>>
-    stream_handler = logging.StreamHandler()
-    
-    logger.setLevel(logging.INFO)
-    logger.addHandler(stream_handler)
-    #>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
 
     cidades_codigo, cidades_id, coordenadas_cidades = get_predefined_data()
     
