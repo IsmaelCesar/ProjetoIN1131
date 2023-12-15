@@ -20,7 +20,7 @@ def plot_cities(coordenadas_cidades: np.ndarray, cidades_codigo: List[str] , num
     plt.clf()
 
 
-def plot_objective_function(average, best, filename: str = None):
+def plot_objective_function(average, best, filename: str = None, show_plot: bool = True):
     plt.plot(average, color='gray', label="Average")
     plt.plot(best, color='blue', label="Best")
     plt.xlabel('Generations')
@@ -28,7 +28,10 @@ def plot_objective_function(average, best, filename: str = None):
     plt.legend(loc="best")
     if filename is not None:
         plt.savefig(filename)
-    plt.show()
+    
+    if show_plot:
+        plt.show()
+
     plt.close()
     plt.clf()
 
@@ -58,7 +61,7 @@ def plot_cycle(coordenadas_cidades, ciclo, codigos_ciclo, filename: str = None):
     plt.clf()
 
 
-def plot_mtsp_cycles(coordenadas_cidades, rotas, cidades_codigo, origin, filename: str = None):
+def plot_mtsp_cycles(coordenadas_cidades, rotas, cidades_codigo, origin, filename: str = None, show_plot=True):
     
     fig = plt.figure(figsize=(6,6))
     ax = fig.add_subplot(1, 1, 1, aspect=1)
@@ -75,6 +78,8 @@ def plot_mtsp_cycles(coordenadas_cidades, rotas, cidades_codigo, origin, filenam
     plt.ylabel('Y_Coord')
     if filename is not None:
         plt.savefig(filename)
-    plt.show()
+    
+    if show_plot:
+        plt.show()
     plt.close()
     plt.clf()
