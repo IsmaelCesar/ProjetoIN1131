@@ -1,3 +1,4 @@
+import json
 import numpy as np
 
 def compute_cycle(best_overall, cidades_coordenadas):
@@ -29,3 +30,15 @@ def check_repetition(cidades_range: np.ndarray, individual: np.ndarray ) -> bool
     
     reps_arr = np.array(list(city_dict.values()))
     return len(reps_arr[reps_arr >= 2]) > 0
+
+def save_statistics_as_json(statistics: dict, filename: str):
+
+    with open(filename, "w+") as file: 
+        json.dump(statistics, file)
+
+def load_statistics_from_json(filename: str) -> dict:
+
+    with open(filename, "r") as file:
+        statistics = json.load(file)
+
+    return statistics
