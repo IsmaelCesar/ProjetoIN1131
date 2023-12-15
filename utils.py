@@ -1,5 +1,13 @@
+import os
 import json
 import numpy as np
+
+
+
+def check_create_dir(dir_name: str):
+    if not os.path.exists(dir_name):
+        os.mkdir(dir_name)
+
 
 def compute_cycle(best_overall, cidades_coordenadas):
     """
@@ -15,6 +23,18 @@ def compute_cycle(best_overall, cidades_coordenadas):
     coordenadas_ciclo = cidades_coordenadas[computed_cycle]
 
     return computed_cycle, coordenadas_ciclo
+
+
+def compute_traveler_breaks(n_travelers: int, n_var: int):
+    traveler_breaks = []
+
+    offset = 0
+    for t_idx in range(n_travelers - 1):
+        offset += n_var // n_travelers
+        traveler_breaks += [offset]
+    
+    traveler_breaks += [n_var - 1]
+    return traveler_breaks
 
 
 def check_repetition(cidades_range: np.ndarray, individual: np.ndarray ) -> bool:
