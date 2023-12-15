@@ -2,7 +2,7 @@ import os
 import re
 from datetime import datetime
 import numpy as np
-from variation_operators import Mutation, Cross_over
+from _old_code.variation_operators import Mutation, Cross_over
 from selection_operators import Parent_Selection, Elitism
 from population import get_predefined_data, Initialization, fitness_calculation
 import statistics

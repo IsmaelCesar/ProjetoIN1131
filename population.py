@@ -37,6 +37,13 @@ def get_data_escolas():
   coordenadas_escolas = escolas[["Latitude", "Longitude"]].to_numpy()
   return escolas_codigos, escolas_id, coordenadas_escolas
 
+def get_data_cidades():
+  cidades_df = pd.read_csv("data/Coord_PE_UTM_24S.csv", delimiter=";").dropna()
+  coordenadas_cidades = cidades_df[["X UTM", "Y UTM"]].to_numpy()
+  cidades_codigos = cidades_df[["NM_MUN"]].to_numpy().reshape(-1).tolist()
+  cidades_id = list(range(len(cidades_codigos)))
+  return cidades_codigos, cidades_id, coordenadas_cidades
+
 #Gero aleatoriamente uma população inicial#
 def Initialization(cidades, pop = 100):
   population = np.empty((0,len(cidades)))

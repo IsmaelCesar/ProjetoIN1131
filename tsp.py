@@ -9,7 +9,7 @@ from typing import Tuple, List
 from scipy.spatial.distance import cdist
 from scipy.stats import norm
 
-logger = logging.getLogger("main.tsp_ga")
+logger = logging.getLogger(__name__)
 
 # >> setting up logging >>>>>
 stream_handler = logging.StreamHandler()
@@ -132,7 +132,7 @@ class MTSP:
 
         min_fitness_idx = fitness.argmin()
         
-        self.statistics["best_individual"].append(individuals[min_fitness_idx].copy())
+        self.statistics["best_individual"].append(individuals[min_fitness_idx].copy().tolist())
         self.statistics["best_fitness"].append(fitness[min_fitness_idx])
         self.statistics["mean_fitness"].append(fitness.mean())
         self.statistics["std_fitness"].append(fitness.std())
