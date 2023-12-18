@@ -188,35 +188,39 @@ if __name__ == "__main__":
     main_logger.info(f"Traveler breaks: {traveler_breaks}")
 
     n_gen = 1000
-    pop_size = 10
+    different_sizes = [200, 100, 50, 30, 20,] #18
     combine_operations = True
     op_probabilities = (.7, .3) # probabilitys of crossover and mutation to occur
 
-    main_logger.info(f"Total Generations: {n_gen}")
-    main_logger.info(f"Population size: {pop_size}")
+    for pop_size in different_sizes: 
 
-    n_executions = 30
+        main_logger.info(f"Total Generations: {n_gen}")
+        main_logger.info(f"Population size: {pop_size}")
 
-    for exec_idx in range(n_executions):
-        main_logger.info(f"Running Min-Sum Execution {exec_idx}")
-        min_sum(
-            traveler_breaks=traveler_breaks,
-            cidades_id=cidades_id,
-            coordenadas_cidades=coordenadas_cidades,
-            n_gen=n_gen,
-            pop_size=pop_size,
-            execution_index=exec_idx,
-            op_probabilities=op_probabilities,
-            combine_operations=combine_operations)
+        n_executions = 30
 
-        main_logger.info(f"Running Min-Max Execution {exec_idx}")
+        for exec_idx in range(n_executions):
+            main_logger.info(f"Running Min-Sum Execution {exec_idx}")
+            min_sum(
+                traveler_breaks=traveler_breaks,
+                cidades_id=cidades_id,
+                coordenadas_cidades=coordenadas_cidades,
+                n_gen=n_gen,
+                pop_size=pop_size,
+                execution_index=exec_idx,
+                op_probabilities=op_probabilities,
+                combine_operations=combine_operations,
+                method_name=f"min_sum_modified_pop_{pop_size}")
 
-        min_max(
-            traveler_breaks=traveler_breaks,
-            cidades_id=cidades_id,
-            coordenadas_cidades=coordenadas_cidades,
-            n_gen=n_gen,
-            pop_size=pop_size,
-            execution_index=exec_idx,
-            op_probabilities=op_probabilities,
-            combine_operations=combine_operations)
+            main_logger.info(f"Running Min-Max Execution {exec_idx}")
+
+            min_max(
+                traveler_breaks=traveler_breaks,
+                cidades_id=cidades_id,
+                coordenadas_cidades=coordenadas_cidades,
+                n_gen=n_gen,
+                pop_size=pop_size,
+                execution_index=exec_idx,
+                op_probabilities=op_probabilities,
+                combine_operations=combine_operations, 
+                method_name=f"min_max_modified_pop_{pop_size}")
