@@ -12,7 +12,7 @@ from plotting import plot_cities, plot_mtsp_cycles, plot_objective_function
 from utils import save_statistics_as_json, compute_traveler_breaks, check_create_dir
 from typing import List, Tuple
 from scipy.spatial.distance import cdist
-
+from itertools import product
 
 logger = logging.getLogger("tsp")
 
@@ -29,6 +29,8 @@ def min_sum(
         n_gen: int,
         pop_size: int,
         execution_index: int,
+        x_operation: str,
+        mut_operation: str,
         op_probabilities: Tuple[float, float] = (.8, .2),
         combine_operations: bool = True,
         method_name: str = "min_sum",
@@ -53,8 +55,8 @@ def min_sum(
     pop_size = pop_size
     mtsp.evolve(
         pop_initializer=Initialization(num_cidades=len(cidades_id), pop_size=pop_size, origin=random_origin),
-        crossover_op=SingleTravelerX(crossover_type="order", probability=op_probabilities[0]),
-        mutation_op=SingleTravelerMut(mutation_type="scramble", probability=op_probabilities[1]),
+        crossover_op=SingleTravelerX(crossover_type=x_operation, probability=op_probabilities[0]),
+        mutation_op=SingleTravelerMut(mutation_type=mut_operation, probability=op_probabilities[1]),
         selection_op=SelectIndividuals(),
         fitness_calculator=MinSumFitnessCalculator(distance_matrix),
         #survivor_selection= STSPKElitism()#FitnessProportional(pop_size=pop_size, num_cidades=len(escolas_id) - 1)
@@ -100,6 +102,8 @@ def min_max(
         n_gen: int,
         pop_size: int,
         execution_index: int,
+        x_operation: str,
+        mut_operation: str, 
         op_probabilities: Tuple[float, float] = (.8, .2),
         combine_operations: bool = True,
         method_name: str = "min_max",
@@ -124,8 +128,8 @@ def min_max(
     pop_size = pop_size
     mtsp.evolve(
         pop_initializer=Initialization(num_cidades=len(cidades_id), pop_size=pop_size, origin=random_origin),
-        crossover_op=SingleTravelerX(crossover_type="edge", probability=op_probabilities[0]),
-        mutation_op=SingleTravelerMut(mutation_type="insert", probability=op_probabilities[1]),
+        crossover_op=SingleTravelerX(crossover_type=x_operation, probability=op_probabilities[0]),
+        mutation_op=SingleTravelerMut(mutation_type=mut_operation, probability=op_probabilities[1]),
         selection_op=SelectIndividuals(),
         fitness_calculator=MinMaxFitnessCalculator(distance_matrix),
         #survivor_selection= STSPKElitism()#FitnessProportional(pop_size=pop_size, num_cidades=len(escolas_id) - 1)
@@ -167,13 +171,13 @@ def min_max(
 
 if __name__ == "__main__":
 
-    RESULTS_DIR  = "results/"
+    RESULTS_DIR  = "results/original_min_max"
 
     # configuring logging <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
     main_logger = logging.getLogger("mtsp_main")
     main_logger.setLevel(logging.INFO)
 
-    file_handler = logging.FileHandler(f"{RESULTS_DIR}/experiment.log", mode="w+")
+    file_handler = logging.FileHandler(f"{RESULTS_DIR}/experiment_min_max.log", mode="w+")
     stream_handler = logging.StreamHandler()
     
     main_logger.addHandler(file_handler)
@@ -188,39 +192,49 @@ if __name__ == "__main__":
     main_logger.info(f"Traveler breaks: {traveler_breaks}")
 
     n_gen = 1000
-    different_sizes = [200, 100, 50, 30, 20,] #18
-    combine_operations = True
+    different_sizes = [20, 18]
+    combine_operations = False
     op_probabilities = (.7, .3) # probabilitys of crossover and mutation to occur
+    x_operations = ["pmx", "order"]
+    mut_operations = ["swap", "scramble"]
 
-    for pop_size in different_sizes: 
+    for pop_size in different_sizes:
 
         main_logger.info(f"Total Generations: {n_gen}")
         main_logger.info(f"Population size: {pop_size}")
 
         n_executions = 30
 
-        for exec_idx in range(n_executions):
-            main_logger.info(f"Running Min-Sum Execution {exec_idx}")
-            min_sum(
-                traveler_breaks=traveler_breaks,
-                cidades_id=cidades_id,
-                coordenadas_cidades=coordenadas_cidades,
-                n_gen=n_gen,
-                pop_size=pop_size,
-                execution_index=exec_idx,
-                op_probabilities=op_probabilities,
-                combine_operations=combine_operations,
-                method_name=f"min_sum_modified_pop_{pop_size}")
+        for x_op, mut_op in product(x_operations, mut_operations):
 
-            main_logger.info(f"Running Min-Max Execution {exec_idx}")
+            for exec_idx in range(n_executions):
+                #main_logger.info(f"Running Min-Sum Execution {exec_idx}")
+                #min_sum(
+                #    traveler_breaks=traveler_breaks,
+                #    cidades_id=cidades_id,
+                #    coordenadas_cidades=coordenadas_cidades,
+                #    n_gen=n_gen,
+                #    pop_size=pop_size,
+                #    execution_index=exec_idx,
+                #    x_operation=x_op, 
+                #    mut_operation=mut_op,
+                #    op_probabilities=op_probabilities,
+                #    combine_operations=combine_operations,
+                #    method_name=f"min_sum_x_op_{x_op}_mut_{mut_op}", 
+                #    results_dir=RESULTS_DIR)
 
-            min_max(
-                traveler_breaks=traveler_breaks,
-                cidades_id=cidades_id,
-                coordenadas_cidades=coordenadas_cidades,
-                n_gen=n_gen,
-                pop_size=pop_size,
-                execution_index=exec_idx,
-                op_probabilities=op_probabilities,
-                combine_operations=combine_operations, 
-                method_name=f"min_max_modified_pop_{pop_size}")
+                main_logger.info(f"Running Min-Max Execution {exec_idx}")
+
+                min_max(
+                    traveler_breaks=traveler_breaks,
+                    cidades_id=cidades_id,
+                    coordenadas_cidades=coordenadas_cidades,
+                    n_gen=n_gen,
+                    pop_size=pop_size,
+                    execution_index=exec_idx,
+                    x_operation=x_op,
+                    mut_operation=mut_op,
+                    op_probabilities=op_probabilities,
+                    combine_operations=combine_operations,
+                    method_name=f"min_max_x_op_{x_op}_mut_{mut_op}",
+                    results_dir=RESULTS_DIR)
